@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fluxketch Finance</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      max-width: 960px;
+    }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0d1117;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      border: none;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    button.secondary { background: #334155; }
+    button.danger { background: #b91c1c; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    .row > * { flex: 1; min-width: 140px; }
+    .hidden { display: none !important; }
+    #status { font-size: 0.85rem; color: var(--muted); min-height: 1.2em; }
+    #status.ok { color: var(--ok); }
+    #status.err { color: #f87171; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; }
+    th { color: var(--muted); font-weight: 500; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #1e3a5f;
+      font-size: 0.75rem;
+    }
+    .config-warn {
+      background: #422006;
+      border: 1px solid var(--warn);
+      color: #fde68a;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      max-width: 960px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fluxketch Finance</h1>
+  <p class="sub">Supabase 클라우드 저장 · 사지방 PC 초기화와 무관</p>
+
+  <div id="configWarn" class="config-warn hidden">
+    ⚠️ <code>index.html</code> 상단 <code>SUPABASE_URL</code>, <code>SUPABASE_ANON_KEY</code>를 아직 안 넣었습니다. 가이드 5단계 참고.
+  </div>
+
+  <!-- LOGIN -->
+  <div id="authSection" class="card">
+    <h2 style="margin-top:0;font-size:1.1rem">로그인</h2>
+    <div class="grid">
+      <div>
+        <label>이메일</label>
+        <input id="email" type="email" placeholder="you@gmail.com" autocomplete="username" />
+      </div>
+      <div>
+        <label>비밀번호 (6자 이상)</label>
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+    </div>
+    <div class="row">
+      <button type="button" id="btnLogin">로그인</button>
+      <button type="button" id="btnSignup" class="secondary">회원가입</button>
+    </div>
+    <p id="status"></p>
+  </div>
+
+  <!-- APP -->
+  <div id="appSection" class="hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div>
+          <span class="pill" id="userEmail"></span>
+          <span id="runwayHint" style="margin-left:8px;color:var(--muted);font-size:0.85rem"></span>
+        </div>
+        <button type="button" id="btnLogout" class="secondary" style="width:auto;padding:8px 16px;margin:0">로그아웃</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;font-size:1.1rem">월별 입력 (Actual)</h2>
+      <div class="grid">
+        <div>
+          <label>월 (YYYY-MM)</label>
+          <input id="month" type="month" />
+        </div>
+        <div>
+          <label>총매출 (₩)</label>
+          <input id="revGross" type="number" min="0" step="1000" value="0" />
+        </div>
+        <div>
+          <label>총비용 (₩)</label>
+          <input id="expTotal" type="number" min="0" step="1000" value="0" />
+        </div>
+        <div>
+          <label>추가 투입금 (₩)</label>
+          <input id="injection" type="number" min="0" step="1000" value="0" />
+        </div>
+        <div>
+          <label>기말 잔고 (₩)</label>
+          <input id="closing" type="number" min="0" step="1000" value="0" />
+        </div>
+        <div>
+          <label>신규 유료 (명)</label>
+          <input id="newPaid" type="number" min="0" step="1" value="0" />
+        </div>
+        <div>
+          <label>활성 유료 (명)</label>
+          <input id="activePaid" type="number" min="0" step="1" value="0" />
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label>메모</label>
+        <textarea id="notes" rows="2" placeholder="Plan 대비 차이, 채널 메모"></textarea>
+      </div>
+      <div class="row">
+        <button type="button" id="btnSave">저장 (Supabase sync)</button>
+        <button type="button" id="btnDelete" class="danger">이 월 삭제</button>
+      </div>
+      <p id="saveStatus"></p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;font-size:1.1rem">저장된 월</h2>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>월</th>
+              <th class="num">총매출</th>
+              <th class="num">순매출(85%)</th>
+              <th class="num">비용</th>
+              <th class="num">기말잔고</th>
+              <th class="num">신규</th>
+              <th>메모</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    // 5단계: Supabase Dashboard → Settings → API 에서 복사 후 붙여넣기
+    // ═══════════════════════════════════════════════════════════
+    const SUPABASE_URL = 'YOUR_PROJECT_URL';      // https://fvqjwnrhcjmmtwikkyzy.supabase.co/rest/v1/
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';    // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2cWp3bnJoY2ptbXR3aWtreXp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0Mjg5MDksImV4cCI6MjA5NzAwNDkwOX0.s1Smf605ixshUb-Exixr0ger6Jfq909K5vURy641OZ0
+    const APPLE_NET_RATE = 0.85;
+
+    const isConfigured =
+      SUPABASE_URL.startsWith('https://') &&
+      !SUPABASE_URL.includes('YOUR_PROJECT') &&
+      SUPABASE_ANON_KEY.length > 20 &&
+      !SUPABASE_ANON_KEY.includes('YOUR_ANON');
+
+    if (!isConfigured) {
+      document.getElementById('configWarn').classList.remove('hidden');
+    }
+
+    const supabase = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const $ = (id) => document.getElementById(id);
+    const fmt = (n) => (Number(n) || 0).toLocaleString('ko-KR');
+
+    function setStatus(el, msg, type) {
+      el.textContent = msg;
+      el.className = type || '';
+    }
+
+    async function refreshSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        $('authSection').classList.add('hidden');
+        $('appSection').classList.remove('hidden');
+        $('userEmail').textContent = session.user.email;
+        await loadAll();
+      } else {
+        $('authSection').classList.remove('hidden');
+        $('appSection').classList.add('hidden');
+      }
+    }
+
+    $('btnLogin').onclick = async () => {
+      if (!isConfigured) return setStatus($('status'), 'Supabase URL/Key 설정 필요', 'err');
+      setStatus($('status'), '로그인 중…');
+      const { error } = await supabase.auth.signInWithPassword({
+        email: $('email').value.trim(),
+        password: $('password').value
+      });
+      if (error) return setStatus($('status'), error.message, 'err');
+      setStatus($('status'), '로그인 성공', 'ok');
+      await refreshSession();
+    };
+
+    $('btnSignup').onclick = async () => {
+      if (!isConfigured) return setStatus($('status'), 'Supabase URL/Key 설정 필요', 'err');
+      setStatus($('status'), '가입 중…');
+      const { data, error } = await supabase.auth.signUp({
+        email: $('email').value.trim(),
+        password: $('password').value
+      });
+      if (error) return setStatus($('status'), error.message, 'err');
+      if (data.session) {
+        setStatus($('status'), '가입 완료', 'ok');
+        await refreshSession();
+      } else {
+        setStatus($('status'), '이메일 확인 링크를 보냈습니다. (또는 Dashboard에서 Confirm email OFF)', 'ok');
+      }
+    };
+
+    $('btnLogout').onclick = async () => {
+      await supabase.auth.signOut();
+      await refreshSession();
+    };
+
+    async function loadAll() {
+      const { data, error } = await supabase
+        .from('monthly_cashflow')
+        .select('*')
+        .order('month', { ascending: false });
+
+      if (error) {
+        setStatus($('saveStatus'), error.message, 'err');
+        return;
+      }
+
+      const tbody = $('tableBody');
+      tbody.innerHTML = '';
+      for (const row of data || []) {
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.innerHTML = `
+          <td>${row.month}</td>
+          <td class="num">${fmt(row.rev_gross_actual)}</td>
+          <td class="num">${fmt(row.rev_net_actual)}</td>
+          <td class="num">${fmt(row.exp_total_actual)}</td>
+          <td class="num">${fmt(row.closing_actual)}</td>
+          <td class="num">${row.new_paid_actual}</td>
+          <td>${(row.notes || '').slice(0, 40)}</td>
+        `;
+        tr.onclick = () => fillForm(row);
+        tbody.appendChild(tr);
+      }
+
+      if (data?.length) {
+        const latest = data[0];
+        $('runwayHint').textContent =
+          `최근 ${latest.month} · 잔고 ₩${fmt(latest.closing_actual)}`;
+      }
+    }
+
+    function fillForm(row) {
+      $('month').value = row.month;
+      $('revGross').value = row.rev_gross_actual;
+      $('expTotal').value = row.exp_total_actual;
+      $('injection').value = row.owner_injection_actual || 0;
+      $('closing').value = row.closing_actual;
+      $('newPaid').value = row.new_paid_actual;
+      $('activePaid').value = row.active_paid_actual;
+      $('notes').value = row.notes || '';
+    }
+
+    $('btnSave').onclick = async () => {
+      const monthVal = $('month').value;
+      if (!monthVal) return setStatus($('saveStatus'), '월을 선택하세요', 'err');
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return setStatus($('saveStatus'), '로그인 필요', 'err');
+
+      const revGross = Number($('revGross').value) || 0;
+      const revNet = Math.round(revGross * APPLE_NET_RATE);
+      const expTotal = Number($('expTotal').value) || 0;
+      const injection = Number($('injection').value) || 0;
+      const netCf = revNet - expTotal + injection;
+
+      const payload = {
+        user_id: user.id,
+        month: monthVal,
+        rev_gross_actual: revGross,
+        rev_net_actual: revNet,
+        exp_total_actual: expTotal,
+        owner_injection_actual: injection,
+        net_cf_actual: netCf,
+        closing_actual: Number($('closing').value) || 0,
+        new_paid_actual: Number($('newPaid').value) || 0,
+        active_paid_actual: Number($('activePaid').value) || 0,
+        mrr_gross_actual: revGross,
+        notes: $('notes').value.trim() || null
+      };
+
+      setStatus($('saveStatus'), '저장 중…');
+      const { error } = await supabase
+        .from('monthly_cashflow')
+        .upsert(payload, { onConflict: 'user_id,month' });
+
+      if (error) return setStatus($('saveStatus'), error.message, 'err');
+      setStatus($('saveStatus'), `${monthVal} 저장됨 · Supabase sync 완료`, 'ok');
+      await loadAll();
+    };
+
+    $('btnDelete').onclick = async () => {
+      const monthVal = $('month').value;
+      if (!monthVal || !confirm(`${monthVal} 삭제?`)) return;
+      const { error } = await supabase
+        .from('monthly_cashflow')
+        .delete()
+        .eq('month', monthVal);
+      if (error) return setStatus($('saveStatus'), error.message, 'err');
+      setStatus($('saveStatus'), '삭제됨', 'ok');
+      await loadAll();
+    };
+
+    supabase.auth.onAuthStateChange(() => refreshSession());
+    refreshSession();
+
+    const now = new Date();
+    $('month').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  </script>
+</body>
+</html>
