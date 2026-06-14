@@ -144,6 +144,9 @@ tr.tot td.mth{background:#12182a}
 .auth-bar input{width:150px;font-size:12px;padding:6px 8px;background:#0e1424;border:1px solid var(--line);border-radius:6px;color:var(--ink)}
 .auth-bar .btn{margin:0}
 .auth-user{font-size:11.5px;color:var(--green);font-family:var(--mono)}
+.auth-status{font-size:11.5px;font-family:var(--mono);min-width:120px;flex:1}
+.auth-status.err{color:var(--red)}
+.auth-status.ok{color:var(--green)}
 .hidden{display:none!important}
 </style>
 </head>
@@ -154,6 +157,7 @@ tr.tot td.mth{background:#12182a}
     <input id="authPass" type="password" placeholder="비밀번호 (6자+)" autocomplete="current-password">
     <button class="btn accent" type="button" id="btnAuthLogin">로그인</button>
     <button class="btn" type="button" id="btnAuthSignup">가입</button>
+    <span id="authStatus" class="auth-status"></span>
     <span id="authUser" class="auth-user hidden"></span>
     <button class="btn hidden" type="button" id="btnAuthLogout">로그아웃</button>
   </div>
@@ -199,7 +203,7 @@ tr.tot td.mth{background:#12182a}
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 //= EMBED =// the data object is injected below
 const DATA = {"assumptions": [{"category": "capital", "key": "starting_cash", "value": "20000000", "unit": "KRW", "notes": "2026-06 기준 잔고", "editable": true}, {"category": "pricing", "key": "pro_monthly", "value": "47900", "unit": "KRW", "notes": "FINAL_MASTER_SPEC", "editable": true}, {"category": "pricing", "key": "pro_yearly", "value": "519000", "unit": "KRW", "notes": "연간 1회 결제", "editable": true}, {"category": "pricing", "key": "student_monthly", "value": "4900", "unit": "KRW", "notes": "", "editable": true}, {"category": "pricing", "key": "noteplus_lifetime", "value": "7900", "unit": "KRW", "notes": "1회", "editable": true}, {"category": "fees", "key": "apple_net_rate", "value": "0.85", "unit": "ratio", "notes": "Small Business 15%", "editable": true}, {"category": "fees", "key": "apple_gross_rate", "value": "0.15", "unit": "ratio", "notes": "", "editable": false}, {"category": "tax", "key": "vat_rate", "value": "0.1", "unit": "ratio", "notes": "과세 사업자 전환 시", "editable": true}, {"category": "tax", "key": "income_tax_reserve_rate", "value": "0.035", "unit": "ratio", "notes": "월 순이익의 3.5% 적립(가정)", "editable": true}, {"category": "fixed", "key": "living_monthly", "value": "1800000", "unit": "KRW", "notes": "생활비", "editable": true}, {"category": "fixed", "key": "tools_monthly", "value": "150000", "unit": "KRW", "notes": "Claude API Mac amort 등", "editable": true}, {"category": "fixed", "key": "cloud_monthly", "value": "20000", "unit": "KRW", "notes": "도메인 Supabase", "editable": true}, {"category": "fixed", "key": "apple_dev_annual", "value": "99000", "unit": "KRW", "notes": "연 1회", "editable": true}, {"category": "target", "key": "bep_gross_mrr", "value": "2720000", "unit": "KRW", "notes": "손익분기 총매출", "editable": true}, {"category": "target", "key": "bep_paid_users", "value": "68", "unit": "count", "notes": "ARPU 4만 가정", "editable": true}, {"category": "target", "key": "runway_warning_months", "value": "4", "unit": "months", "notes": "경고 임계", "editable": true}, {"category": "target", "key": "runway_critical_months", "value": "2", "unit": "months", "notes": "위험 임계", "editable": true}, {"category": "churn", "key": "pro_monthly_churn", "value": "0.05", "unit": "ratio", "notes": "월 이탈률", "editable": true}, {"category": "churn", "key": "student_monthly_churn", "value": "0.08", "unit": "ratio", "notes": "", "editable": true}, {"category": "scenario", "key": "active_scenario", "value": "P50", "unit": "text", "notes": "P25|P50|P75", "editable": true}], "cashflow": [{"month": "2026-06", "phase": "Prep", "event": "문서·리스트", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 100000, "labor": 0, "legal": 0, "cloud": 20000, "travel": 0, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2120000, "net_cf": -2120000, "opening": 30000000, "closing": 27880000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-07", "phase": "Build", "event": "W9+상표", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 100000, "labor": 0, "legal": 700000, "cloud": 20000, "travel": 0, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2820000, "net_cf": -2820000, "opening": 27880000, "closing": 25060000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-08", "phase": "Build", "event": "W10+베타준비", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 200000, "labor": 0, "legal": 0, "cloud": 20000, "travel": 50000, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2270000, "net_cf": -2270000, "opening": 25060000, "closing": 22790000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-09", "phase": "Beta", "event": "베타모집", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 300000, "labor": 200000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2550000, "net_cf": -2550000, "opening": 22790000, "closing": 20240000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-10", "phase": "Beta", "event": "TestFlight", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 800000, "labor": 300000, "legal": 0, "cloud": 20000, "travel": 50000, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 80000, "fee": 12000, "net": 68000, "exp_total": 3170000, "net_cf": -3102000, "opening": 20240000, "closing": 17138000, "new_paid": 1, "active_paid": 1, "mrr_gross": 80000}}, {"month": "2026-11", "phase": "Launch", "event": "V1출시", "notes": null, "lines": {"pro_m": 1200000, "pro_y": 500000, "student": 200000, "noteplus": 100000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 1000000, "labor": 400000, "legal": 0, "cloud": 20000, "travel": 80000, "other_exp": 50000, "tax_reserve": 59500, "injection": 0}, "plan": {"gross": 2000000, "fee": 300000, "net": 1700000, "exp_total": 3545500, "net_cf": -1845500, "opening": 17138000, "closing": 15292500, "new_paid": 35, "active_paid": 35, "mrr_gross": 2000000}}, {"month": "2026-12", "phase": "Growth", "event": "얼리버드", "notes": null, "lines": {"pro_m": 1600000, "pro_y": 600000, "student": 300000, "noteplus": 300000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 600000, "labor": 200000, "legal": 0, "cloud": 20000, "travel": 50000, "other_exp": 50000, "tax_reserve": 83300, "injection": 0}, "plan": {"gross": 2800000, "fee": 420000, "net": 2380000, "exp_total": 2853300, "net_cf": -473300, "opening": 15292500, "closing": 14819200, "new_paid": 28, "active_paid": 58, "mrr_gross": 2800000}}, {"month": "2027-01", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 1800000, "pro_y": 700000, "student": 350000, "noteplus": 350000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 200000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 95200, "injection": 0}, "plan": {"gross": 3200000, "fee": 480000, "net": 2720000, "exp_total": 2745200, "net_cf": -25000, "opening": 14819200, "closing": 14794200, "new_paid": 18, "active_paid": 72, "mrr_gross": 3200000}}, {"month": "2027-02", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 1950000, "pro_y": 750000, "student": 380000, "noteplus": 420000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 104125, "injection": 0}, "plan": {"gross": 3500000, "fee": 525000, "net": 2975000, "exp_total": 2800125, "net_cf": 174875, "opening": 14794200, "closing": 14969075, "new_paid": 15, "active_paid": 78, "mrr_gross": 3500000}}, {"month": "2027-03", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2100000, "pro_y": 800000, "student": 400000, "noteplus": 500000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 300000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 113050, "injection": 0}, "plan": {"gross": 3800000, "fee": 570000, "net": 3230000, "exp_total": 2763050, "net_cf": 466950, "opening": 14969075, "closing": 15436025, "new_paid": 12, "active_paid": 85, "mrr_gross": 3800000}}, {"month": "2027-04", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2250000, "pro_y": 850000, "student": 420000, "noteplus": 590000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 300000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 122273, "injection": 0}, "plan": {"gross": 4110000, "fee": 616500, "net": 3493500, "exp_total": 2782273, "net_cf": 711227, "opening": 15436025, "closing": 16147252, "new_paid": 10, "active_paid": 92, "mrr_gross": 4110000}}, {"month": "2027-05", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2400000, "pro_y": 900000, "student": 450000, "noteplus": 650000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 250000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 130900, "injection": 0}, "plan": {"gross": 4400000, "fee": 660000, "net": 3740000, "exp_total": 2730900, "net_cf": 1009100, "opening": 16147252, "closing": 17156352, "new_paid": 8, "active_paid": 98, "mrr_gross": 4400000}}, {"month": "2027-06", "phase": "V15", "event": "DXF Export", "notes": null, "lines": {"pro_m": 2700000, "pro_y": 1100000, "student": 500000, "noteplus": 700000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 200000, "legal": 0, "cloud": 30000, "travel": 50000, "other_exp": 80000, "tax_reserve": 151725, "injection": 0}, "plan": {"gross": 5100000, "fee": 765000, "net": 4335000, "exp_total": 2711725, "net_cf": 1623275, "opening": 17156352, "closing": 18779627, "new_paid": 15, "active_paid": 115, "mrr_gross": 5100000}}, {"month": "2027-07", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2900000, "pro_y": 1200000, "student": 520000, "noteplus": 780000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 163625, "injection": 0}, "plan": {"gross": 5500000, "fee": 825000, "net": 4675000, "exp_total": 2768625, "net_cf": 1906375, "opening": 18779627, "closing": 20686002, "new_paid": 10, "active_paid": 125, "mrr_gross": 5500000}}, {"month": "2027-08", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3050000, "pro_y": 1250000, "student": 540000, "noteplus": 860000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 172550, "injection": 0}, "plan": {"gross": 5800000, "fee": 870000, "net": 4930000, "exp_total": 2802550, "net_cf": 2127450, "opening": 20686002, "closing": 22813452, "new_paid": 8, "active_paid": 132, "mrr_gross": 5800000}}, {"month": "2027-09", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3200000, "pro_y": 1300000, "student": 560000, "noteplus": 940000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 181475, "injection": 0}, "plan": {"gross": 6100000, "fee": 915000, "net": 5185000, "exp_total": 2836475, "net_cf": 2348525, "opening": 22813452, "closing": 25161977, "new_paid": 7, "active_paid": 138, "mrr_gross": 6100000}}, {"month": "2027-10", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3350000, "pro_y": 1350000, "student": 580000, "noteplus": 1020000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 190400, "injection": 0}, "plan": {"gross": 6400000, "fee": 960000, "net": 5440000, "exp_total": 2870400, "net_cf": 2569600, "opening": 25161977, "closing": 27731577, "new_paid": 6, "active_paid": 143, "mrr_gross": 6400000}}, {"month": "2027-11", "phase": "Growth", "event": "1주년", "notes": null, "lines": {"pro_m": 3500000, "pro_y": 1400000, "student": 600000, "noteplus": 1100000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 50000, "other_exp": 80000, "tax_reserve": 199325, "injection": 0}, "plan": {"gross": 6700000, "fee": 1005000, "net": 5695000, "exp_total": 2939325, "net_cf": 2755675, "opening": 27731577, "closing": 30487252, "new_paid": 6, "active_paid": 148, "mrr_gross": 6700000}}, {"month": "2027-12", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3650000, "pro_y": 1500000, "student": 620000, "noteplus": 1180000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 50000, "other_exp": 80000, "tax_reserve": 209738, "injection": 0}, "plan": {"gross": 7050000, "fee": 1057500, "net": 5992500, "exp_total": 2959738, "net_cf": 3032762, "opening": 30487252, "closing": 33520014, "new_paid": 5, "active_paid": 155, "mrr_gross": 7050000}}], "channels": [{"month": "2026-06", "channel": "Instagram_DM", "notes": "준비만", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Everytime", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Referral", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Everytime", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Referral", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 8, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 2, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Everytime", "notes": "", "plan": {"downloads": 35, "paid_new": 5, "revenue": 450000}}, {"month": "2026-08", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 5, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Referral", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 15, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 4, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Everytime", "notes": "", "plan": {"downloads": 50, "paid_new": 8, "revenue": 700000}}, {"month": "2026-09", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 5, "paid_new": 1, "revenue": 79000}}, {"month": "2026-09", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 10, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Referral", "notes": "", "plan": {"downloads": 2, "paid_new": 0, "revenue": 0}}, {"month": "2026-10", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 22, "paid_new": 1, "revenue": 40000}}, {"month": "2026-10", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 6, "paid_new": 0, "revenue": 0}}, {"month": "2026-10", "channel": "Everytime", "notes": "", "plan": {"downloads": 50, "paid_new": 8, "revenue": 700000}}, {"month": "2026-10", "channel": "Meta_Ads", "notes": "광고비 15만", "plan": {"downloads": 15, "paid_new": 1, "revenue": 40000}}, {"month": "2026-10", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 8, "paid_new": 1, "revenue": 79000}}, {"month": "2026-10", "channel": "YouTube", "notes": "협찬 70만", "plan": {"downloads": 120, "paid_new": 14, "revenue": 490000}}, {"month": "2026-10", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 15, "paid_new": 0, "revenue": 0}}, {"month": "2026-10", "channel": "Referral", "notes": "", "plan": {"downloads": 3, "paid_new": 1, "revenue": 47900}}, {"month": "2026-11", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 25, "paid_new": 12, "revenue": 480000}}, {"month": "2026-11", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 10, "paid_new": 4, "revenue": 170000}}, {"month": "2026-11", "channel": "Everytime", "notes": "", "plan": {"downloads": 35, "paid_new": 6, "revenue": 550000}}, {"month": "2026-11", "channel": "Meta_Ads", "notes": "광고비 30만", "plan": {"downloads": 35, "paid_new": 4, "revenue": 160000}}, {"month": "2026-11", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 10, "paid_new": 2, "revenue": 150000}}, {"month": "2026-11", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-11", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 80, "paid_new": 12, "revenue": 420000}}, {"month": "2026-11", "channel": "Referral", "notes": "", "plan": {"downloads": 5, "paid_new": 3, "revenue": 140000}}, {"month": "2026-12", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 15, "paid_new": 8, "revenue": 420000}}, {"month": "2026-12", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 6, "paid_new": 2, "revenue": 105000}}, {"month": "2026-12", "channel": "Everytime", "notes": "", "plan": {"downloads": 20, "paid_new": 3, "revenue": 400000}}, {"month": "2026-12", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 25, "paid_new": 3, "revenue": 120000}}, {"month": "2026-12", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 5, "paid_new": 1, "revenue": 79000}}, {"month": "2026-12", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-12", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 60, "paid_new": 10, "revenue": 350000}}, {"month": "2026-12", "channel": "Referral", "notes": "", "plan": {"downloads": 4, "paid_new": 2, "revenue": 95000}}]};
@@ -244,13 +248,42 @@ function setSaveLabel(txt, dirty){
   d.classList.toggle("dirty", !!dirty);
   if(d.lastChild) d.lastChild.nodeValue=txt;
 }
+function setAuthStatus(msg, isErr){
+  const el=document.getElementById("authStatus");
+  if(!el) return;
+  el.textContent=msg||"";
+  el.className="auth-status"+(isErr?" err":msg?" ok":"");
+}
+function authInputs(){
+  return {
+    email: document.getElementById("authEmail").value.trim(),
+    password: document.getElementById("authPass").value
+  };
+}
+function validateAuthInput(email, password){
+  if(!email||!email.includes("@")) return "올바른 이메일을 입력하세요";
+  if(!password||password.length<6) return "비밀번호는 6자 이상이어야 합니다";
+  return "";
+}
+function createSupabaseClient(){
+  const lib=globalThis.supabase;
+  if(!lib) return null;
+  const createClient=lib.createClient||(lib.default&&lib.default.createClient);
+  if(typeof createClient!=="function") return null;
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+  });
+}
 function updateAuthUI(session){
   const logged=!!session?.user;
   ["authEmail","authPass","btnAuthLogin","btnAuthSignup"].forEach(id=>document.getElementById(id).classList.toggle("hidden", logged));
   document.getElementById("btnAuthLogout").classList.toggle("hidden", !logged);
   const u=document.getElementById("authUser");
   u.classList.toggle("hidden", !logged);
-  if(logged) u.textContent="☁ "+session.user.email;
+  if(logged){
+    u.textContent="☁ "+session.user.email;
+    setAuthStatus("클라우드 연결됨", false);
+  }
 }
 async function loadFromCloud(){
   if(!sb) return;
@@ -272,35 +305,83 @@ async function saveToCloud(out){
   const { error } = await sb.from("finance_cockpit_state").upsert({ user_id:user.id, payload:out });
   if(error) throw error;
 }
+async function doLogin(){
+  if(!sb){ setAuthStatus("Supabase 로드 실패 — 새로고침(F5) 후 다시 시도", true); return; }
+  const { email, password }=authInputs();
+  const bad=validateAuthInput(email, password);
+  if(bad){ setAuthStatus(bad, true); return; }
+  setAuthStatus("로그인 중…", false);
+  const { data, error }=await sb.auth.signInWithPassword({ email, password });
+  if(error){ setAuthStatus(error.message, true); showToast(error.message); return; }
+  cloudOk=!!data.session;
+  updateAuthUI(data.session);
+  if(data.session) await loadFromCloud();
+  setAuthStatus("로그인 성공", false);
+  showToast("로그인 성공");
+}
+async function doSignup(){
+  if(!sb){ setAuthStatus("Supabase 로드 실패 — 새로고침(F5) 후 다시 시도", true); return; }
+  const { email, password }=authInputs();
+  const bad=validateAuthInput(email, password);
+  if(bad){ setAuthStatus(bad, true); return; }
+  setAuthStatus("가입 중…", false);
+  const { data, error }=await sb.auth.signUp({ email, password });
+  if(error){ setAuthStatus(error.message, true); showToast(error.message); return; }
+  if(data.session){
+    cloudOk=true;
+    updateAuthUI(data.session);
+    await loadFromCloud();
+    setAuthStatus("가입 완료 · 로그인됨", false);
+    showToast("가입 완료");
+    return;
+  }
+  const login=await sb.auth.signInWithPassword({ email, password });
+  if(login.data.session){
+    cloudOk=true;
+    updateAuthUI(login.data.session);
+    await loadFromCloud();
+    setAuthStatus("가입 완료 · 로그인됨", false);
+    showToast("가입 완료");
+    return;
+  }
+  const msg="가입됨 — Supabase에서 Authentication → Email → Confirm email OFF 인지 확인";
+  setAuthStatus(msg, true);
+  showToast(msg);
+}
 async function initCloud(){
-  if(!window.supabase) return;
-  sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const { data:{ session } } = await sb.auth.getSession();
-  updateAuthUI(session);
-  cloudOk=!!session;
-  if(session) await loadFromCloud();
-  sb.auth.onAuthStateChange(async (_, session)=>{
+  sb=createSupabaseClient();
+  if(!sb){
+    setAuthStatus("Supabase JS 로드 실패 — 인터넷 확인 후 새로고침", true);
+    document.getElementById("btnAuthLogin").onclick=()=>setAuthStatus("Supabase JS 로드 실패 — 새로고침", true);
+    document.getElementById("btnAuthSignup").onclick=()=>setAuthStatus("Supabase JS 로드 실패 — 새로고침", true);
+    return;
+  }
+  try{
+    const { data:{ session } }=await sb.auth.getSession();
     updateAuthUI(session);
     cloudOk=!!session;
     if(session) await loadFromCloud();
+    sb.auth.onAuthStateChange(async (_, session)=>{
+      updateAuthUI(session);
+      cloudOk=!!session;
+      if(session) await loadFromCloud();
+      else setAuthStatus("로그아웃됨", false);
+    });
+  }catch(e){
+    setAuthStatus(e.message||"Supabase 초기화 실패", true);
+  }
+  document.getElementById("btnAuthLogin").onclick=doLogin;
+  document.getElementById("btnAuthSignup").onclick=doSignup;
+  document.getElementById("btnAuthLogout").onclick=async()=>{
+    if(!sb) return;
+    await sb.auth.signOut();
+    cloudOk=false;
+    setAuthStatus("로그아웃됨", false);
+    showToast("로그아웃");
+  };
+  document.getElementById("authPass").addEventListener("keydown", e=>{
+    if(e.key==="Enter") doLogin();
   });
-  document.getElementById("btnAuthLogin").onclick=async()=>{
-    const { error } = await sb.auth.signInWithPassword({
-      email: document.getElementById("authEmail").value.trim(),
-      password: document.getElementById("authPass").value
-    });
-    if(error) return showToast(error.message);
-    showToast("로그인 성공");
-  };
-  document.getElementById("btnAuthSignup").onclick=async()=>{
-    const { data, error } = await sb.auth.signUp({
-      email: document.getElementById("authEmail").value.trim(),
-      password: document.getElementById("authPass").value
-    });
-    if(error) return showToast(error.message);
-    showToast(data.session ? "가입 완료" : "가입됨 (Confirm email OFF 확인)");
-  };
-  document.getElementById("btnAuthLogout").onclick=async()=>{ await sb.auth.signOut(); showToast("로그아웃"); };
 }
 function load(){
   S=freshState();
