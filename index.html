@@ -1,375 +1,804 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fluxketch Finance</title>
-  <style>
-    :root {
-      --bg: #0f1419;
-      --card: #1a2332;
-      --border: #2d3a4f;
-      --text: #e7ecf3;
-      --muted: #8b9cb3;
-      --accent: #3b82f6;
-      --ok: #22c55e;
-      --warn: #f59e0b;
-    }
-    * { box-sizing: border-box; }
-    body {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 24px;
-      line-height: 1.5;
-    }
-    h1 { font-size: 1.35rem; margin: 0 0 4px; }
-    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-      max-width: 960px;
-    }
-    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
-    input, textarea, select, button {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #0d1117;
-      color: var(--text);
-      font-size: 0.95rem;
-    }
-    button {
-      cursor: pointer;
-      background: var(--accent);
-      border: none;
-      font-weight: 600;
-      margin-top: 8px;
-    }
-    button.secondary { background: #334155; }
-    button.danger { background: #b91c1c; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-    }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
-    .row > * { flex: 1; min-width: 140px; }
-    .hidden { display: none !important; }
-    #status { font-size: 0.85rem; color: var(--muted); min-height: 1.2em; }
-    #status.ok { color: var(--ok); }
-    #status.err { color: #f87171; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    th, td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; }
-    th { color: var(--muted); font-weight: 500; }
-    .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .pill {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #1e3a5f;
-      font-size: 0.75rem;
-    }
-    .config-warn {
-      background: #422006;
-      border: 1px solid var(--warn);
-      color: #fde68a;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      max-width: 960px;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluxketch · 재무 콕핏</title>
+<style>
+:root{
+  --bg:#0e1320; --bg2:#121829; --panel:#171d30; --panel2:#1d2540; --raise:#232c4a;
+  --line:#2a3350; --line2:#36416a; --ink:#e9edf8; --ink2:#c2c9dd; --mut:#8089a3; --mut2:#646d88;
+  --orange:#f0823c; --orange-d:#c9652a; --green:#48c08a; --green-d:#2f8a62;
+  --red:#e35d5b; --red-d:#b13f3d; --blue:#5e92d8; --yellow:#e7b54e;
+  --mono:"IBM Plex Mono","SFMono-Regular",ui-monospace,"Roboto Mono",monospace;
+  --sans:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%}
+body{background:radial-gradient(1200px 600px at 80% -10%,#16203a 0%,var(--bg) 55%)}
+a{color:var(--blue);text-decoration:none}
+::selection{background:rgba(240,130,60,.3)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.pos{color:var(--green)} .neg{color:var(--red)} .warnc{color:var(--orange)} .mut{color:var(--mut)}
+
+/* layout */
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+header.app{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1c2643,#0f1426);border:1px solid var(--line2);
+  display:grid;place-items:center;position:relative;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.logo:before{content:"";position:absolute;inset:7px;border-radius:3px;
+  background:repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,255,255,.07) 4px 5px),
+             repeating-linear-gradient(90deg,transparent 0 4px,rgba(255,255,255,.07) 4px 5px)}
+.logo span{position:relative;width:3px;height:15px;background:var(--orange);border-radius:2px;transform:rotate(32deg);box-shadow:0 0 8px rgba(240,130,60,.7)}
+.brand h1{font-size:15px;margin:0;letter-spacing:.2px;font-weight:700}
+.brand .sub{font-size:11px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;font-family:var(--mono)}
+.spacer{flex:1}
+.tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.btn{font-family:var(--sans);font-size:12.5px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);
+  padding:7px 11px;border-radius:8px;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--line2);color:var(--ink);background:var(--panel2)}
+.btn.accent{background:linear-gradient(180deg,#f0823c,#d96e2e);border-color:#e0763300;color:#1a1206;font-weight:700}
+.btn.accent:hover{filter:brightness(1.07)}
+.btn.danger:hover{border-color:var(--red-d);color:#ffb4b3}
+.save-dot{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--mut);font-family:var(--mono)}
+.save-dot i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green-d)}
+.save-dot.dirty i{background:var(--yellow);box-shadow:0 0 7px #8a6a1f}
+
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:8px}
+.kpi{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:13px;padding:13px 14px;position:relative;overflow:hidden}
+.kpi .lab{font-size:11px;color:var(--mut);letter-spacing:.02em;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.kpi .val{font-family:var(--mono);font-size:21px;font-weight:600;letter-spacing:-.5px;line-height:1.1}
+.kpi .delta{font-size:11px;margin-top:6px;font-family:var(--mono)}
+.kpi.span2{grid-column:span 2}
+.kpi.runway{background:linear-gradient(180deg,#1b1322,#120e1c);border-color:#3a2a3f}
+.fuel{height:9px;border-radius:6px;background:#2a2030;margin-top:10px;overflow:hidden;border:1px solid #382a3e}
+.fuel>i{display:block;height:100%;border-radius:6px;transition:width .4s,background .3s}
+.fuel-ticks{display:flex;justify-content:space-between;font-size:9.5px;color:var(--mut2);margin-top:4px;font-family:var(--mono)}
+.state-ok{color:var(--green)} .state-warn{color:var(--orange)} .state-crit{color:var(--red)}
+
+/* tabs */
+nav.tabs{display:flex;gap:4px;margin:18px 0 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{font-size:13.5px;color:var(--mut);background:none;border:none;padding:10px 14px 11px;cursor:pointer;border-bottom:2px solid transparent;border-radius:0;font-family:var(--sans)}
+.tab:hover{color:var(--ink2)}
+.tab.on{color:var(--orange);border-bottom-color:var(--orange);font-weight:600}
+.panewrap>section{display:none}
+.panewrap>section.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+
+/* cards & charts */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.grid3{display:grid;grid-template-columns:1.4fr 1fr;gap:13px}
+.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:13px;padding:15px 16px;margin-bottom:13px}
+.card h3{margin:0 0 3px;font-size:13.5px;font-weight:700}
+.card .ch-sub{font-size:11px;color:var(--mut);margin:0 0 11px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2);margin-top:9px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+.insight{font-size:13px;line-height:1.75;color:var(--ink2)}
+.insight b{color:var(--ink)}
+.insight .row{padding:7px 0;border-bottom:1px dashed var(--line);display:flex;gap:9px}
+.insight .row:last-child{border-bottom:none}
+.insight .ic{flex:none;width:20px;text-align:center}
+svg{display:block;width:100%;height:auto;overflow:visible}
+
+/* tables */
+.scrollx{overflow-x:auto;border:1px solid var(--line);border-radius:11px;background:var(--bg2)}
+table.grid{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;min-width:760px}
+table.grid th,table.grid td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+table.grid thead th{position:sticky;top:0;background:#141a2c;color:var(--mut);font-weight:600;font-size:11px;z-index:3;border-bottom:1px solid var(--line2)}
+table.grid th.lft,table.grid td.lft{text-align:left}
+table.grid td.mth,table.grid th.mth{position:sticky;left:0;background:var(--bg2);text-align:left;z-index:2;border-right:1px solid var(--line)}
+table.grid thead th.mth{z-index:4;background:#141a2c}
+table.grid tbody tr:hover td{background:rgba(94,146,216,.06)}
+table.grid tbody tr:hover td.mth{background:#1a2236}
+.grp-rev{color:#7fb0e8} .grp-exp{color:#e79a9a} 
+th.sep,td.sep{border-left:1px solid var(--line2)}
+
+input.cell{width:88px;font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink);
+  background:#0e1424;border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-variant-numeric:tabular-nums}
+input.cell::placeholder{color:#4a5474;font-style:normal}
+input.cell:focus{outline:none;border-color:var(--orange);background:#161021;box-shadow:0 0 0 2px rgba(240,130,60,.18)}
+input.cell.exp:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(227,93,91,.16)}
+td.calc{font-family:var(--mono);background:rgba(255,255,255,.015)}
+td.closing{font-family:var(--mono);font-weight:600}
+tr.tot td{border-top:1px solid var(--line2);background:#12182a;font-weight:600;font-family:var(--mono)}
+tr.tot td.mth{background:#12182a}
+.phase{display:inline-block;font-size:10px;padding:1px 6px;border-radius:5px;background:var(--raise);color:var(--ink2);font-family:var(--mono)}
+.mini{font-size:10px;color:var(--mut2);font-family:var(--mono)}
+.linkbtn{font-size:10.5px;color:var(--blue);background:none;border:1px solid var(--line);border-radius:6px;padding:3px 6px;cursor:pointer}
+.linkbtn:hover{border-color:var(--blue);color:#9cc1ee}
+
+/* segmented control */
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{font-family:var(--sans);font-size:12px;color:var(--mut);background:none;border:none;padding:6px 12px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--raise);color:var(--ink)}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.hint{font-size:11.5px;color:var(--mut);background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--orange);
+  border-radius:0 8px 8px 0;padding:8px 12px;margin:10px 0}
+.tag{font-size:9.5px;font-family:var(--mono);color:var(--green);border:1px solid var(--green-d);border-radius:5px;padding:0 5px;margin-left:6px}
+
+/* assumptions */
+.asgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.ascat{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:13px 14px}
+.ascat h4{margin:0 0 9px;font-size:12px;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono)}
+.asrow{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.asrow:last-child{border-bottom:none}
+.asrow .k{flex:1;font-size:12px}
+.asrow .k .n{display:block;font-size:10px;color:var(--mut2);margin-top:1px}
+.asrow input{width:120px;font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink);background:#0e1424;border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+.asrow input:focus{outline:none;border-color:var(--orange)}
+.asrow input:disabled{opacity:.5;cursor:not-allowed}
+.asrow .u{font-size:10.5px;color:var(--mut);width:40px;font-family:var(--mono)}
+.footer{margin-top:26px;font-size:11px;color:var(--mut2);text-align:center;line-height:1.8}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#15203a;border:1px solid var(--line2);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.25s;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:920px){
+  .kpis{grid-template-columns:repeat(2,1fr)} .kpi.span2{grid-column:span 2}
+  .grid2,.grid3,.asgrid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.auth-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 10px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;margin-bottom:14px}
+.auth-bar input{width:150px;font-size:12px;padding:6px 8px;background:#0e1424;border:1px solid var(--line);border-radius:6px;color:var(--ink)}
+.auth-bar .btn{margin:0}
+.auth-user{font-size:11.5px;color:var(--green);font-family:var(--mono)}
+.hidden{display:none!important}
+</style>
 </head>
 <body>
-  <h1>Fluxketch Finance</h1>
-  <p class="sub">Supabase 클라우드 저장 · 사지방 PC 초기화와 무관</p>
-
-  <div id="configWarn" class="config-warn hidden">
-    ⚠️ <code>index.html</code> 상단 <code>SUPABASE_URL</code>, <code>SUPABASE_ANON_KEY</code>를 아직 안 넣었습니다. 가이드 5단계 참고.
+<div class="wrap">
+  <div class="auth-bar" id="authBar">
+    <input id="authEmail" type="email" placeholder="이메일" autocomplete="username">
+    <input id="authPass" type="password" placeholder="비밀번호 (6자+)" autocomplete="current-password">
+    <button class="btn accent" type="button" id="btnAuthLogin">로그인</button>
+    <button class="btn" type="button" id="btnAuthSignup">가입</button>
+    <span id="authUser" class="auth-user hidden"></span>
+    <button class="btn hidden" type="button" id="btnAuthLogout">로그아웃</button>
   </div>
-
-  <!-- LOGIN -->
-  <div id="authSection" class="card">
-    <h2 style="margin-top:0;font-size:1.1rem">로그인</h2>
-    <div class="grid">
+  <header class="app">
+    <div class="brand">
+      <div class="logo"><span></span></div>
       <div>
-        <label>이메일</label>
-        <input id="email" type="email" placeholder="you@gmail.com" autocomplete="username" />
-      </div>
-      <div>
-        <label>비밀번호 (6자 이상)</label>
-        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <h1>Fluxketch 재무 콕핏</h1>
+        <div class="sub">Runway · Plan vs Actual · Channels</div>
       </div>
     </div>
-    <div class="row">
-      <button type="button" id="btnLogin">로그인</button>
-      <button type="button" id="btnSignup" class="secondary">회원가입</button>
+    <div class="spacer"></div>
+    <div class="tools">
+      <span class="save-dot" id="saveDot"><i></i>저장됨</span>
+      <button class="btn" id="btnExportJson">상태 저장(JSON)</button>
+      <button class="btn" id="btnImportJson">불러오기</button>
+      <button class="btn" id="btnExportCsv">CSV 내보내기</button>
+      <button class="btn danger" id="btnReset">계획으로 초기화</button>
+      <input type="file" id="fileJson" accept="application/json" style="display:none">
     </div>
-    <p id="status"></p>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-t="dash">대시보드</button>
+    <button class="tab" data-t="cash">월별 현금흐름</button>
+    <button class="tab" data-t="chan">채널별 매출</button>
+    <button class="tab" data-t="assum">가정</button>
+  </nav>
+
+  <div class="panewrap">
+    <section class="on" id="pane-dash"></section>
+    <section id="pane-cash"></section>
+    <section id="pane-chan"></section>
+    <section id="pane-assum"></section>
   </div>
 
-  <!-- APP -->
-  <div id="appSection" class="hidden">
-    <div class="card">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <div>
-          <span class="pill" id="userEmail"></span>
-          <span id="runwayHint" style="margin-left:8px;color:var(--muted);font-size:0.85rem"></span>
-        </div>
-        <button type="button" id="btnLogout" class="secondary" style="width:auto;padding:8px 16px;margin:0">로그아웃</button>
-      </div>
-    </div>
+  <div class="footer">
+    Fluxketch 재무 콕핏 · 실제값을 입력하면 런웨이·손익분기·채널 성과가 자동 계산됩니다.<br>
+    <b>로그인</b>하면 Supabase 클라우드에 자동 저장됩니다 (사지방 PC 초기화 OK). JSON/CSV 내보내기도 가능.
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
-    <div class="card">
-      <h2 style="margin-top:0;font-size:1.1rem">월별 입력 (Actual)</h2>
-      <div class="grid">
-        <div>
-          <label>월 (YYYY-MM)</label>
-          <input id="month" type="month" />
-        </div>
-        <div>
-          <label>총매출 (₩)</label>
-          <input id="revGross" type="number" min="0" step="1000" value="0" />
-        </div>
-        <div>
-          <label>총비용 (₩)</label>
-          <input id="expTotal" type="number" min="0" step="1000" value="0" />
-        </div>
-        <div>
-          <label>추가 투입금 (₩)</label>
-          <input id="injection" type="number" min="0" step="1000" value="0" />
-        </div>
-        <div>
-          <label>기말 잔고 (₩)</label>
-          <input id="closing" type="number" min="0" step="1000" value="0" />
-        </div>
-        <div>
-          <label>신규 유료 (명)</label>
-          <input id="newPaid" type="number" min="0" step="1" value="0" />
-        </div>
-        <div>
-          <label>활성 유료 (명)</label>
-          <input id="activePaid" type="number" min="0" step="1" value="0" />
-        </div>
-      </div>
-      <div style="margin-top:12px">
-        <label>메모</label>
-        <textarea id="notes" rows="2" placeholder="Plan 대비 차이, 채널 메모"></textarea>
-      </div>
-      <div class="row">
-        <button type="button" id="btnSave">저장 (Supabase sync)</button>
-        <button type="button" id="btnDelete" class="danger">이 월 삭제</button>
-      </div>
-      <p id="saveStatus"></p>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+//= EMBED =// the data object is injected below
+const DATA = {"assumptions": [{"category": "capital", "key": "starting_cash", "value": "20000000", "unit": "KRW", "notes": "2026-06 기준 잔고", "editable": true}, {"category": "pricing", "key": "pro_monthly", "value": "47900", "unit": "KRW", "notes": "FINAL_MASTER_SPEC", "editable": true}, {"category": "pricing", "key": "pro_yearly", "value": "519000", "unit": "KRW", "notes": "연간 1회 결제", "editable": true}, {"category": "pricing", "key": "student_monthly", "value": "4900", "unit": "KRW", "notes": "", "editable": true}, {"category": "pricing", "key": "noteplus_lifetime", "value": "7900", "unit": "KRW", "notes": "1회", "editable": true}, {"category": "fees", "key": "apple_net_rate", "value": "0.85", "unit": "ratio", "notes": "Small Business 15%", "editable": true}, {"category": "fees", "key": "apple_gross_rate", "value": "0.15", "unit": "ratio", "notes": "", "editable": false}, {"category": "tax", "key": "vat_rate", "value": "0.1", "unit": "ratio", "notes": "과세 사업자 전환 시", "editable": true}, {"category": "tax", "key": "income_tax_reserve_rate", "value": "0.035", "unit": "ratio", "notes": "월 순이익의 3.5% 적립(가정)", "editable": true}, {"category": "fixed", "key": "living_monthly", "value": "1800000", "unit": "KRW", "notes": "생활비", "editable": true}, {"category": "fixed", "key": "tools_monthly", "value": "150000", "unit": "KRW", "notes": "Claude API Mac amort 등", "editable": true}, {"category": "fixed", "key": "cloud_monthly", "value": "20000", "unit": "KRW", "notes": "도메인 Supabase", "editable": true}, {"category": "fixed", "key": "apple_dev_annual", "value": "99000", "unit": "KRW", "notes": "연 1회", "editable": true}, {"category": "target", "key": "bep_gross_mrr", "value": "2720000", "unit": "KRW", "notes": "손익분기 총매출", "editable": true}, {"category": "target", "key": "bep_paid_users", "value": "68", "unit": "count", "notes": "ARPU 4만 가정", "editable": true}, {"category": "target", "key": "runway_warning_months", "value": "4", "unit": "months", "notes": "경고 임계", "editable": true}, {"category": "target", "key": "runway_critical_months", "value": "2", "unit": "months", "notes": "위험 임계", "editable": true}, {"category": "churn", "key": "pro_monthly_churn", "value": "0.05", "unit": "ratio", "notes": "월 이탈률", "editable": true}, {"category": "churn", "key": "student_monthly_churn", "value": "0.08", "unit": "ratio", "notes": "", "editable": true}, {"category": "scenario", "key": "active_scenario", "value": "P50", "unit": "text", "notes": "P25|P50|P75", "editable": true}], "cashflow": [{"month": "2026-06", "phase": "Prep", "event": "문서·리스트", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 100000, "labor": 0, "legal": 0, "cloud": 20000, "travel": 0, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2120000, "net_cf": -2120000, "opening": 30000000, "closing": 27880000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-07", "phase": "Build", "event": "W9+상표", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 100000, "labor": 0, "legal": 700000, "cloud": 20000, "travel": 0, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2820000, "net_cf": -2820000, "opening": 27880000, "closing": 25060000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-08", "phase": "Build", "event": "W10+베타준비", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 200000, "labor": 0, "legal": 0, "cloud": 20000, "travel": 50000, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2270000, "net_cf": -2270000, "opening": 25060000, "closing": 22790000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-09", "phase": "Beta", "event": "베타모집", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 300000, "labor": 200000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 0, "fee": 0, "net": 0, "exp_total": 2550000, "net_cf": -2550000, "opening": 22790000, "closing": 20240000, "new_paid": 0, "active_paid": 0, "mrr_gross": 0}}, {"month": "2026-10", "phase": "Beta", "event": "TestFlight", "notes": null, "lines": {"pro_m": 0, "pro_y": 0, "student": 0, "noteplus": 0, "other": 0, "living": 1800000, "tools": 150000, "marketing": 800000, "labor": 300000, "legal": 0, "cloud": 20000, "travel": 50000, "other_exp": 50000, "tax_reserve": 0, "injection": 0}, "plan": {"gross": 80000, "fee": 12000, "net": 68000, "exp_total": 3170000, "net_cf": -3102000, "opening": 20240000, "closing": 17138000, "new_paid": 1, "active_paid": 1, "mrr_gross": 80000}}, {"month": "2026-11", "phase": "Launch", "event": "V1출시", "notes": null, "lines": {"pro_m": 1200000, "pro_y": 500000, "student": 200000, "noteplus": 100000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 1000000, "labor": 400000, "legal": 0, "cloud": 20000, "travel": 80000, "other_exp": 50000, "tax_reserve": 59500, "injection": 0}, "plan": {"gross": 2000000, "fee": 300000, "net": 1700000, "exp_total": 3545500, "net_cf": -1845500, "opening": 17138000, "closing": 15292500, "new_paid": 35, "active_paid": 35, "mrr_gross": 2000000}}, {"month": "2026-12", "phase": "Growth", "event": "얼리버드", "notes": null, "lines": {"pro_m": 1600000, "pro_y": 600000, "student": 300000, "noteplus": 300000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 600000, "labor": 200000, "legal": 0, "cloud": 20000, "travel": 50000, "other_exp": 50000, "tax_reserve": 83300, "injection": 0}, "plan": {"gross": 2800000, "fee": 420000, "net": 2380000, "exp_total": 2853300, "net_cf": -473300, "opening": 15292500, "closing": 14819200, "new_paid": 28, "active_paid": 58, "mrr_gross": 2800000}}, {"month": "2027-01", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 1800000, "pro_y": 700000, "student": 350000, "noteplus": 350000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 200000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 95200, "injection": 0}, "plan": {"gross": 3200000, "fee": 480000, "net": 2720000, "exp_total": 2745200, "net_cf": -25000, "opening": 14819200, "closing": 14794200, "new_paid": 18, "active_paid": 72, "mrr_gross": 3200000}}, {"month": "2027-02", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 1950000, "pro_y": 750000, "student": 380000, "noteplus": 420000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 104125, "injection": 0}, "plan": {"gross": 3500000, "fee": 525000, "net": 2975000, "exp_total": 2800125, "net_cf": 174875, "opening": 14794200, "closing": 14969075, "new_paid": 15, "active_paid": 78, "mrr_gross": 3500000}}, {"month": "2027-03", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2100000, "pro_y": 800000, "student": 400000, "noteplus": 500000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 300000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 113050, "injection": 0}, "plan": {"gross": 3800000, "fee": 570000, "net": 3230000, "exp_total": 2763050, "net_cf": 466950, "opening": 14969075, "closing": 15436025, "new_paid": 12, "active_paid": 85, "mrr_gross": 3800000}}, {"month": "2027-04", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2250000, "pro_y": 850000, "student": 420000, "noteplus": 590000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 300000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 122273, "injection": 0}, "plan": {"gross": 4110000, "fee": 616500, "net": 3493500, "exp_total": 2782273, "net_cf": 711227, "opening": 15436025, "closing": 16147252, "new_paid": 10, "active_paid": 92, "mrr_gross": 4110000}}, {"month": "2027-05", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2400000, "pro_y": 900000, "student": 450000, "noteplus": 650000, "other": 0, "living": 1800000, "tools": 150000, "marketing": 250000, "labor": 150000, "legal": 0, "cloud": 20000, "travel": 30000, "other_exp": 50000, "tax_reserve": 130900, "injection": 0}, "plan": {"gross": 4400000, "fee": 660000, "net": 3740000, "exp_total": 2730900, "net_cf": 1009100, "opening": 16147252, "closing": 17156352, "new_paid": 8, "active_paid": 98, "mrr_gross": 4400000}}, {"month": "2027-06", "phase": "V15", "event": "DXF Export", "notes": null, "lines": {"pro_m": 2700000, "pro_y": 1100000, "student": 500000, "noteplus": 700000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 200000, "legal": 0, "cloud": 30000, "travel": 50000, "other_exp": 80000, "tax_reserve": 151725, "injection": 0}, "plan": {"gross": 5100000, "fee": 765000, "net": 4335000, "exp_total": 2711725, "net_cf": 1623275, "opening": 17156352, "closing": 18779627, "new_paid": 15, "active_paid": 115, "mrr_gross": 5100000}}, {"month": "2027-07", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 2900000, "pro_y": 1200000, "student": 520000, "noteplus": 780000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 163625, "injection": 0}, "plan": {"gross": 5500000, "fee": 825000, "net": 4675000, "exp_total": 2768625, "net_cf": 1906375, "opening": 18779627, "closing": 20686002, "new_paid": 10, "active_paid": 125, "mrr_gross": 5500000}}, {"month": "2027-08", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3050000, "pro_y": 1250000, "student": 540000, "noteplus": 860000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 172550, "injection": 0}, "plan": {"gross": 5800000, "fee": 870000, "net": 4930000, "exp_total": 2802550, "net_cf": 2127450, "opening": 20686002, "closing": 22813452, "new_paid": 8, "active_paid": 132, "mrr_gross": 5800000}}, {"month": "2027-09", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3200000, "pro_y": 1300000, "student": 560000, "noteplus": 940000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 181475, "injection": 0}, "plan": {"gross": 6100000, "fee": 915000, "net": 5185000, "exp_total": 2836475, "net_cf": 2348525, "opening": 22813452, "closing": 25161977, "new_paid": 7, "active_paid": 138, "mrr_gross": 6100000}}, {"month": "2027-10", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3350000, "pro_y": 1350000, "student": 580000, "noteplus": 1020000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 350000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 30000, "other_exp": 50000, "tax_reserve": 190400, "injection": 0}, "plan": {"gross": 6400000, "fee": 960000, "net": 5440000, "exp_total": 2870400, "net_cf": 2569600, "opening": 25161977, "closing": 27731577, "new_paid": 6, "active_paid": 143, "mrr_gross": 6400000}}, {"month": "2027-11", "phase": "Growth", "event": "1주년", "notes": null, "lines": {"pro_m": 3500000, "pro_y": 1400000, "student": 600000, "noteplus": 1100000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 50000, "other_exp": 80000, "tax_reserve": 199325, "injection": 0}, "plan": {"gross": 6700000, "fee": 1005000, "net": 5695000, "exp_total": 2939325, "net_cf": 2755675, "opening": 27731577, "closing": 30487252, "new_paid": 6, "active_paid": 148, "mrr_gross": 6700000}}, {"month": "2027-12", "phase": "Growth", "event": "", "notes": null, "lines": {"pro_m": 3650000, "pro_y": 1500000, "student": 620000, "noteplus": 1180000, "other": 100000, "living": 1800000, "tools": 150000, "marketing": 400000, "labor": 150000, "legal": 0, "cloud": 30000, "travel": 50000, "other_exp": 80000, "tax_reserve": 209738, "injection": 0}, "plan": {"gross": 7050000, "fee": 1057500, "net": 5992500, "exp_total": 2959738, "net_cf": 3032762, "opening": 30487252, "closing": 33520014, "new_paid": 5, "active_paid": 155, "mrr_gross": 7050000}}], "channels": [{"month": "2026-06", "channel": "Instagram_DM", "notes": "준비만", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Everytime", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-06", "channel": "Referral", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Everytime", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-07", "channel": "Referral", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 8, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 2, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Everytime", "notes": "", "plan": {"downloads": 35, "paid_new": 5, "revenue": 450000}}, {"month": "2026-08", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 5, "paid_new": 0, "revenue": 0}}, {"month": "2026-08", "channel": "Referral", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 15, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 4, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Everytime", "notes": "", "plan": {"downloads": 50, "paid_new": 8, "revenue": 700000}}, {"month": "2026-09", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 5, "paid_new": 1, "revenue": 79000}}, {"month": "2026-09", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 10, "paid_new": 0, "revenue": 0}}, {"month": "2026-09", "channel": "Referral", "notes": "", "plan": {"downloads": 2, "paid_new": 0, "revenue": 0}}, {"month": "2026-10", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 22, "paid_new": 1, "revenue": 40000}}, {"month": "2026-10", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 6, "paid_new": 0, "revenue": 0}}, {"month": "2026-10", "channel": "Everytime", "notes": "", "plan": {"downloads": 50, "paid_new": 8, "revenue": 700000}}, {"month": "2026-10", "channel": "Meta_Ads", "notes": "광고비 15만", "plan": {"downloads": 15, "paid_new": 1, "revenue": 40000}}, {"month": "2026-10", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 8, "paid_new": 1, "revenue": 79000}}, {"month": "2026-10", "channel": "YouTube", "notes": "협찬 70만", "plan": {"downloads": 120, "paid_new": 14, "revenue": 490000}}, {"month": "2026-10", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 15, "paid_new": 0, "revenue": 0}}, {"month": "2026-10", "channel": "Referral", "notes": "", "plan": {"downloads": 3, "paid_new": 1, "revenue": 47900}}, {"month": "2026-11", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 25, "paid_new": 12, "revenue": 480000}}, {"month": "2026-11", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 10, "paid_new": 4, "revenue": 170000}}, {"month": "2026-11", "channel": "Everytime", "notes": "", "plan": {"downloads": 35, "paid_new": 6, "revenue": 550000}}, {"month": "2026-11", "channel": "Meta_Ads", "notes": "광고비 30만", "plan": {"downloads": 35, "paid_new": 4, "revenue": 160000}}, {"month": "2026-11", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 10, "paid_new": 2, "revenue": 150000}}, {"month": "2026-11", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-11", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 80, "paid_new": 12, "revenue": 420000}}, {"month": "2026-11", "channel": "Referral", "notes": "", "plan": {"downloads": 5, "paid_new": 3, "revenue": 140000}}, {"month": "2026-12", "channel": "Instagram_DM", "notes": "", "plan": {"downloads": 15, "paid_new": 8, "revenue": 420000}}, {"month": "2026-12", "channel": "Office_Visit", "notes": "", "plan": {"downloads": 6, "paid_new": 2, "revenue": 105000}}, {"month": "2026-12", "channel": "Everytime", "notes": "", "plan": {"downloads": 20, "paid_new": 3, "revenue": 400000}}, {"month": "2026-12", "channel": "Meta_Ads", "notes": "", "plan": {"downloads": 25, "paid_new": 3, "revenue": 120000}}, {"month": "2026-12", "channel": "Naver_Cafe", "notes": "", "plan": {"downloads": 5, "paid_new": 1, "revenue": 79000}}, {"month": "2026-12", "channel": "YouTube", "notes": "", "plan": {"downloads": 0, "paid_new": 0, "revenue": 0}}, {"month": "2026-12", "channel": "ASO_Organic", "notes": "", "plan": {"downloads": 60, "paid_new": 10, "revenue": 350000}}, {"month": "2026-12", "channel": "Referral", "notes": "", "plan": {"downloads": 4, "paid_new": 2, "revenue": 95000}}]};
 
+/* ---------------- model ---------------- */
+const REV=[["pro_m","Pro 월"],["pro_y","Pro 연"],["student","Student"],["noteplus","Note+"],["other","기타"]];
+const EXP=[["living","생활비"],["tools","도구"],["marketing","마케팅"],["labor","인건/알바"],["legal","법무/상표"],
+           ["cloud","클라우드"],["travel","교통"],["other_exp","기타"],["tax_reserve","세금적립"]];
+const REVK=REV.map(x=>x[0]), EXPK=EXP.map(x=>x[0]);
+const CH_LABEL={Instagram_DM:"인스타 DM",Office_Visit:"사무소 방문",Everytime:"에브리타임",Meta_Ads:"Meta 광고",
+  Naver_Cafe:"네이버 카페",YouTube:"유튜버",ASO_Organic:"ASO/오가닉",Referral:"추천인"};
+const STORE="fluxketch_finance_v3";
+const SUPABASE_URL = 'https://fvqjwnrhcjmmtwikkyzy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2cWp3bnJoY2ptbXR3aWtreXp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0Mjg5MDksImV4cCI6MjA5NzAwNDkwOX0.s1Smf605ixshUb-Exixr0ger6Jfq909K5vURy641OZ0';
+let sb=null, cloudOk=false;
+
+let S=null, ui={tab:"dash", cashShowPlan:true, chanMetric:"revenue", expMonth:null};
+
+function freshState(){
+  const assumptions={};
+  DATA.assumptions.forEach(a=>assumptions[a.key]={value:a.value,unit:a.unit,notes:a.notes,category:a.category,editable:a.editable});
+  const months=DATA.cashflow.map(m=>({month:m.month,phase:m.phase,event:m.event,notes:m.notes,
+    lines:Object.assign({},m.lines), plan:Object.assign({},m.plan), actual:{}}));
+  const channels=DATA.channels.map(c=>({month:c.month,channel:c.channel,notes:c.notes,
+    plan:Object.assign({},c.plan), actual:{}}));
+  return {assumptions,months,channels};
+}
+function snapshotState(){
+  const out={assumptions:{},months:S.months.map(m=>m.actual),channels:S.channels.map(c=>c.actual),ui};
+  for(const k in S.assumptions) out.assumptions[k]=S.assumptions[k].value;
+  return out;
+}
+function applySnapshot(sv){
+  if(!sv) return;
+  if(sv.assumptions) for(const k in sv.assumptions){ if(S.assumptions[k]) S.assumptions[k].value=sv.assumptions[k]; }
+  if(sv.months) sv.months.forEach((a,i)=>{ if(S.months[i]) S.months[i].actual=a||{}; });
+  if(sv.channels) sv.channels.forEach((a,i)=>{ if(S.channels[i]) S.channels[i].actual=a||{}; });
+  if(sv.ui) Object.assign(ui,sv.ui);
+}
+function setSaveLabel(txt, dirty){
+  const d=document.getElementById("saveDot"); if(!d) return;
+  d.classList.toggle("dirty", !!dirty);
+  if(d.lastChild) d.lastChild.nodeValue=txt;
+}
+function updateAuthUI(session){
+  const logged=!!session?.user;
+  ["authEmail","authPass","btnAuthLogin","btnAuthSignup"].forEach(id=>document.getElementById(id).classList.toggle("hidden", logged));
+  document.getElementById("btnAuthLogout").classList.toggle("hidden", !logged);
+  const u=document.getElementById("authUser");
+  u.classList.toggle("hidden", !logged);
+  if(logged) u.textContent="☁ "+session.user.email;
+}
+async function loadFromCloud(){
+  if(!sb) return;
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user) return;
+  const { data, error } = await sb.from("finance_cockpit_state").select("payload").eq("user_id", user.id).maybeSingle();
+  if(error){ showToast(error.message); return; }
+  if(data?.payload){
+    applySnapshot(data.payload);
+    try{ localStorage.setItem(STORE, JSON.stringify(data.payload)); }catch(e){}
+    recompute();
+    switchTab(ui.tab||"dash");
+    showToast("클라우드에서 불러왔습니다");
+  }
+}
+async function saveToCloud(out){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user) return;
+  const { error } = await sb.from("finance_cockpit_state").upsert({ user_id:user.id, payload:out });
+  if(error) throw error;
+}
+async function initCloud(){
+  if(!window.supabase) return;
+  sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data:{ session } } = await sb.auth.getSession();
+  updateAuthUI(session);
+  cloudOk=!!session;
+  if(session) await loadFromCloud();
+  sb.auth.onAuthStateChange(async (_, session)=>{
+    updateAuthUI(session);
+    cloudOk=!!session;
+    if(session) await loadFromCloud();
+  });
+  document.getElementById("btnAuthLogin").onclick=async()=>{
+    const { error } = await sb.auth.signInWithPassword({
+      email: document.getElementById("authEmail").value.trim(),
+      password: document.getElementById("authPass").value
+    });
+    if(error) return showToast(error.message);
+    showToast("로그인 성공");
+  };
+  document.getElementById("btnAuthSignup").onclick=async()=>{
+    const { data, error } = await sb.auth.signUp({
+      email: document.getElementById("authEmail").value.trim(),
+      password: document.getElementById("authPass").value
+    });
+    if(error) return showToast(error.message);
+    showToast(data.session ? "가입 완료" : "가입됨 (Confirm email OFF 확인)");
+  };
+  document.getElementById("btnAuthLogout").onclick=async()=>{ await sb.auth.signOut(); showToast("로그아웃"); };
+}
+function load(){
+  S=freshState();
+  try{
+    const raw=localStorage.getItem(STORE);
+    if(raw) applySnapshot(JSON.parse(raw));
+  }catch(e){}
+}
+let saveTimer=null;
+function markDirty(){ document.getElementById("saveDot").classList.add("dirty");
+  document.getElementById("saveDot").lastChild.nodeValue="저장 중…"; clearTimeout(saveTimer); saveTimer=setTimeout(save,500); }
+function save(){
+  const out=snapshotState();
+  try{ localStorage.setItem(STORE,JSON.stringify(out)); }catch(e){}
+  if(cloudOk&&sb){
+    saveToCloud(out).then(()=>setSaveLabel("클라우드 저장됨", false))
+      .catch(e=>{ setSaveLabel("클라우드 실패", false); showToast(e.message); });
+    return;
+  }
+  setSaveLabel("저장됨", false);
+}
+
+/* ---------------- helpers ---------------- */
+const A=k=>{const v=parseFloat(S.assumptions[k]?.value); return isNaN(v)?0:v;};
+const netRate=()=>{let r=A("apple_net_rate"); return (r>0&&r<=1)?r:0.85;};
+function pnum(v){ if(v===null||v===undefined) return null; const s=(""+v).replace(/[^0-9.\-]/g,""); if(s===""||s==="-") return null; const n=parseFloat(s); return isNaN(n)?null:n; }
+function actHas(m){ return REVK.some(k=>pnum(m.actual[k])!==null) || EXPK.some(k=>pnum(m.actual[k])!==null); }
+const sumKeys=(o,keys)=>keys.reduce((s,k)=>s+(pnum(o[k])||0),0);
+function fmt(n){ if(n===null||n===undefined||isNaN(n)) return "—"; const r=Math.round(n); return (r<0?"-":"")+"₩"+Math.abs(r).toLocaleString("ko-KR"); }
+function fmtP(n){ return (n===null||isNaN(n))?"—":Math.round(n).toLocaleString("ko-KR"); }
+function abbr(n){ if(n===null||isNaN(n)) return "—"; const s=n<0?"-":""; n=Math.abs(n);
+  if(n>=1e8) return s+"₩"+(n/1e8).toFixed(n>=1e9?0:2).replace(/\.?0+$/,"")+"억";
+  if(n>=1e4) return s+"₩"+Math.round(n/1e4).toLocaleString("ko-KR")+"만";
+  return s+"₩"+Math.round(n).toLocaleString("ko-KR"); }
+const mlabel=m=>m.slice(2).replace("-","."); // 2026-11 -> 26.11
+
+/* ---------------- compute ---------------- */
+let C=null;
+function compute(){
+  const nr=netRate(), gr=1-nr, start=A("starting_cash");
+  let planClose=start, mixPrev=start, lastActIdx=-1, cumNet=0;
+  const rows=S.months.map((m,i)=>{
+    const has=actHas(m);
+    if(has) lastActIdx=i;
+    // plan authoritative
+    const p=m.plan;
+    const planGross=p.gross, planNet=p.net, planExp=p.exp_total, planNcf=p.net_cf, planClosing=p.closing;
+    // actual / forecast
+    let aGross,aFee,aNet,aExp,aInj,aNcf,activeP;
+    if(has){
+      aGross=sumKeys(m.actual,REVK); aFee=Math.round(aGross*gr); aNet=aGross-aFee;
+      aExp=sumKeys(m.actual,EXPK); aInj=pnum(m.actual.injection)||0; aNcf=aNet+aInj-aExp;
+      activeP=(pnum(m.actual.active_paid)!==null)?pnum(m.actual.active_paid):p.active_paid;
+    }else{ aGross=p.gross; aFee=p.fee; aNet=p.net; aExp=p.exp_total; aInj=0; aNcf=p.net_cf; activeP=p.active_paid; }
+    const mixClosing=mixPrev+aNcf; const mixOpening=mixPrev; mixPrev=mixClosing;
+    cumNet+=aNet;
+    return {i,month:m.month,phase:m.phase,event:m.event,has,
+      planGross,planNet,planExp,planNcf,planClosing,planActive:p.active_paid,
+      aGross,aFee,aNet,aExp,aInj,aNcf,mixOpening,mixClosing,activeP,cumNet};
+  });
+  // current month = last actualized, else -1 (start)
+  const curIdx=lastActIdx;
+  const curCash=curIdx<0?start:rows[curIdx].mixClosing;
+  // runway: walk projected mix closing forward from curIdx
+  let lowest=Infinity, lowIdx=-1, runout=-1;
+  for(let j=curIdx+1;j<rows.length;j++){ if(rows[j].mixClosing<lowest){lowest=rows[j].mixClosing;lowIdx=j;} if(runout<0&&rows[j].mixClosing<0) runout=j; }
+  let runwayMonths, runwaySafe=false;
+  if(runout>=0){ runwayMonths=runout-curIdx; }
+  else { runwaySafe=true; runwayMonths=rows.length-1-curIdx; }
+  C={rows,start,curIdx,curCash,lowest:isFinite(lowest)?lowest:curCash,lowMonth:lowIdx>=0?rows[lowIdx].month:null,
+     runwayMonths,runwaySafe,nr,gr};
+  return C;
+}
+
+/* ---------------- SVG charts ---------------- */
+const NS="http://www.w3.org/2000/svg";
+function svgEl(tag,attrs,txt){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(txt!=null)e.textContent=txt;return e;}
+function chartLine(series,labels,opt){
+  opt=opt||{}; const W=opt.w||640,H=opt.h||230,pl=44,pr=12,pt=14,pb=26;
+  const all=series.flatMap(s=>s.pts).filter(v=>v!=null);
+  let mn=Math.min(0,...all), mx=Math.max(...all,1); if(mx===mn)mx=mn+1;
+  const x=i=>pl+(W-pl-pr)*(labels.length<2?0:i/(labels.length-1));
+  const y=v=>pt+(H-pt-pb)*(1-(v-mn)/(mx-mn));
+  const svg=svgEl("svg",{viewBox:`0 0 ${W} ${H}`});
+  // gridlines
+  for(let g=0;g<=4;g++){const v=mn+(mx-mn)*g/4,yy=y(v);
+    svg.appendChild(svgEl("line",{x1:pl,y1:yy,x2:W-pr,y2:yy,stroke:"#23304f","stroke-width":1}));
+    svg.appendChild(svgEl("text",{x:pl-6,y:yy+3,"text-anchor":"end",fill:"#646d88","font-size":9,"font-family":"var(--mono)"},abbr(v)));
+  }
+  if(mn<0){const yy=y(0);svg.appendChild(svgEl("line",{x1:pl,y1:yy,x2:W-pr,y2:yy,stroke:"#e35d5b","stroke-width":1,"stroke-dasharray":"4 3",opacity:.6}));}
+  // x labels (sparse)
+  const step=Math.ceil(labels.length/8);
+  labels.forEach((l,i)=>{ if(i%step===0||i===labels.length-1) svg.appendChild(svgEl("text",{x:x(i),y:H-8,"text-anchor":"middle",fill:"#646d88","font-size":9,"font-family":"var(--mono)"},l)); });
+  series.forEach(s=>{
+    let d="",started=false;
+    s.pts.forEach((v,i)=>{ if(v==null){return;} d+=(started?"L":"M")+x(i)+" "+y(v)+" "; started=true; });
+    if(s.fill){ const area=d+`L ${x(s.pts.length-1)} ${y(0)} L ${x(0)} ${y(0)} Z`;
+      const grad="g"+Math.random().toString(36).slice(2,7);
+      const lg=svgEl("linearGradient",{id:grad,x1:0,y1:0,x2:0,y2:1});
+      lg.appendChild(svgEl("stop",{offset:"0%","stop-color":s.color,"stop-opacity":.28}));
+      lg.appendChild(svgEl("stop",{offset:"100%","stop-color":s.color,"stop-opacity":0}));
+      const defs=svgEl("defs",{}); defs.appendChild(lg); svg.appendChild(defs);
+      svg.appendChild(svgEl("path",{d:area,fill:`url(#${grad})`,stroke:"none"}));
+    }
+    svg.appendChild(svgEl("path",{d,fill:"none",stroke:s.color,"stroke-width":s.width||2,"stroke-dasharray":s.dash||"","stroke-linejoin":"round"}));
+    if(opt.markIdx!=null&&s.pts[opt.markIdx]!=null) svg.appendChild(svgEl("circle",{cx:x(opt.markIdx),cy:y(s.pts[opt.markIdx]),r:3.5,fill:s.color,stroke:"#0e1320","stroke-width":1.5}));
+  });
+  return svg;
+}
+function chartGroupBars(labels,groups,opt){
+  opt=opt||{}; const W=opt.w||640,H=opt.h||230,pl=44,pr=10,pt=12,pb=26;
+  const mx=Math.max(1,...groups.flatMap(g=>g.vals.filter(v=>v!=null)));
+  const n=labels.length, bw=(W-pl-pr)/n, gw=bw*0.62, sub=gw/groups.length;
+  const y=v=>pt+(H-pt-pb)*(1-v/mx);
+  const svg=svgEl("svg",{viewBox:`0 0 ${W} ${H}`});
+  for(let g=0;g<=4;g++){const v=mx*g/4,yy=y(v);
+    svg.appendChild(svgEl("line",{x1:pl,y1:yy,x2:W-pr,y2:yy,stroke:"#23304f"}));
+    svg.appendChild(svgEl("text",{x:pl-6,y:yy+3,"text-anchor":"end",fill:"#646d88","font-size":9,"font-family":"var(--mono)"},abbr(v)));}
+  labels.forEach((l,i)=>{
+    const x0=pl+bw*i+(bw-gw)/2;
+    groups.forEach((grp,gi)=>{ const v=grp.vals[i]; if(v==null||v<=0)return; const h=(H-pt-pb)*v/mx;
+      svg.appendChild(svgEl("rect",{x:x0+sub*gi+1,y:H-pb-h,width:sub-2,height:h,rx:2,fill:grp.color,opacity:grp.op||1})); });
+    const step=Math.ceil(n/9);
+    if(i%step===0||i===n-1) svg.appendChild(svgEl("text",{x:pl+bw*i+bw/2,y:H-8,"text-anchor":"middle",fill:"#646d88","font-size":9,"font-family":"var(--mono)"},l));
+  });
+  return svg;
+}
+function chartHBars(rows,opt){
+  opt=opt||{}; const W=opt.w||640, rh=opt.rh||26, lblW=opt.lblW||92, pr=58, pt=6;
+  const H=pt*2+rows.length*rh;
+  const mx=Math.max(1,...rows.flatMap(r=>r.vals.map(v=>v.val)));
+  const svg=svgEl("svg",{viewBox:`0 0 ${W} ${H}`});
+  rows.forEach((r,i)=>{
+    const y0=pt+i*rh; const bh=(rh-8)/r.vals.length;
+    svg.appendChild(svgEl("text",{x:lblW-8,y:y0+rh/2+3,"text-anchor":"end",fill:"#c2c9dd","font-size":11},r.label));
+    r.vals.forEach((v,vi)=>{ const w=(W-lblW-pr)*v.val/mx;
+      svg.appendChild(svgEl("rect",{x:lblW,y:y0+4+bh*vi,width:Math.max(0,w),height:bh-1.5,rx:2,fill:v.color}));
+      if(vi===r.vals.length-1) svg.appendChild(svgEl("text",{x:lblW+Math.max(0,w)+6,y:y0+rh/2+3,fill:"#8089a3","font-size":10,"font-family":"var(--mono)"},abbr(r.tot!=null?r.tot:v.val)));
+    });
+  });
+  return svg;
+}
+function chartDonut(segs,opt){
+  opt=opt||{}; const sz=opt.sz||168, r=sz/2-6, ir=r*0.6, cx=sz/2, cy=sz/2;
+  const tot=segs.reduce((s,x)=>s+x.val,0)||1; let a=-Math.PI/2;
+  const svg=svgEl("svg",{viewBox:`0 0 ${sz} ${sz}`,style:"max-width:"+sz+"px;margin:0 auto"});
+  segs.forEach(s=>{ const ang=2*Math.PI*s.val/tot, a2=a+ang;
+    const x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
+    const xi1=cx+ir*Math.cos(a2),yi1=cy+ir*Math.sin(a2),xi2=cx+ir*Math.cos(a),yi2=cy+ir*Math.sin(a);
+    const large=ang>Math.PI?1:0;
+    if(s.val>0) svg.appendChild(svgEl("path",{d:`M${x1} ${y1} A${r} ${r} 0 ${large} 1 ${x2} ${y2} L${xi1} ${yi1} A${ir} ${ir} 0 ${large} 0 ${xi2} ${yi2} Z`,fill:s.color}));
+    a=a2; });
+  svg.appendChild(svgEl("text",{x:cx,y:cy-2,"text-anchor":"middle",fill:"#8089a3","font-size":10},"총비용"));
+  svg.appendChild(svgEl("text",{x:cx,y:cy+13,"text-anchor":"middle",fill:"#e9edf8","font-size":12,"font-family":"var(--mono)"},abbr(tot)));
+  return svg;
+}
+
+/* ---------------- KPI strip ---------------- */
+function renderKPI(){
+  const r=C.rows, cur=C.curIdx, curRow=cur<0?null:r[cur];
+  const curLabel=cur<0?"시작 (2026-06 전)":r[cur].month;
+  const planCash=cur<0?C.start:r[cur].planClosing;
+  const dCash=C.curCash-planCash;
+  const gross=cur<0?0:curRow.aGross, planGross=cur<0?0:curRow.planGross;
+  const active=cur<0?0:curRow.activeP, planActive=cur<0?0:curRow.planActive;
+  const bep=A("bep_gross_mrr"), bepPct=bep>0?gross/bep*100:0;
+  const cumNet=cur<0?0:curRow.cumNet;
+  // runway state
+  const warnM=A("runway_warning_months")||4, critM=A("runway_critical_months")||2;
+  let rwState="state-ok",rwTxt,rwSub;
+  if(C.runwaySafe){ rwState="state-ok"; rwTxt="안전"; rwSub="기간 내 현금 고갈 없음"; }
+  else { rwTxt=C.runwayMonths+"개월"; rwSub="예상 고갈 "+(r[C.curIdx+C.runwayMonths]?r[C.curIdx+C.runwayMonths].month:"—");
+    rwState = C.runwayMonths<=critM?"state-crit":(C.runwayMonths<=warnM?"state-warn":"state-ok"); }
+  const fuel=Math.max(0,Math.min(1,C.curCash/C.start));
+  const fuelColor = rwState==="state-crit"?"var(--red)":rwState==="state-warn"?"var(--orange)":"var(--green)";
+  const dCls=v=>v>0?"pos":v<0?"neg":"mut", sign=v=>v>0?"+":"";
+
+  const cards=[
+    {lab:"현재 잔고",val:abbr(C.curCash),sub:`<span class="${dCls(dCash)}">${sign(dCash)}${abbr(dCash)}</span> vs 계획 · 기준 ${curLabel}`},
+    {runway:true,state:rwState,txt:rwTxt,sub:rwSub,fuel,fuelColor,low:abbr(C.lowest),lowM:C.lowMonth?mlabel(C.lowMonth):"—"},
+    {lab:"이번 달 총매출",val:abbr(gross),sub:`<span class="${dCls(gross-planGross)}">${sign(gross-planGross)}${abbr(gross-planGross)}</span> vs 계획`},
+    {lab:"활성 유료",val:fmtP(active)+"<span style='font-size:12px;color:var(--mut)'> 명</span>",sub:`계획 ${fmtP(planActive)}명 · <span class="${dCls(active-planActive)}">${sign(active-planActive)}${fmtP(active-planActive)}</span>`},
+    {lab:"손익분기 달성",val:Math.round(bepPct)+"<span style='font-size:13px;color:var(--mut)'>%</span>",sub:`BEP ${abbr(bep)} 기준`,state:bepPct>=100?"state-ok":bepPct>=60?"state-warn":""},
+    {lab:"누적 순매출",val:abbr(cumNet),sub:"Apple 수수료 차감 후"},
+  ];
+  const el=document.getElementById("kpis"); el.innerHTML="";
+  cards.forEach(c=>{
+    const d=document.createElement("div"); d.className="kpi"+(c.runway?" runway span2":"");
+    if(c.runway){
+      d.innerHTML=`<div class="lab">런웨이 <span class="mut">· 현금 소진까지</span></div>
+        <div class="val ${c.state}">${c.txt}</div>
+        <div class="fuel"><i style="width:${c.fuel*100}%;background:${c.fuelColor}"></i></div>
+        <div class="fuel-ticks"><span>${c.sub}</span><span>최저 ${c.low} (${c.lowM})</span></div>`;
+    }else{
+      d.innerHTML=`<div class="lab">${c.lab}</div><div class="val ${c.state||""}">${c.val}</div><div class="delta mut">${c.sub}</div>`;
+    }
+    el.appendChild(d);
+  });
+}
+
+/* ---------------- Dashboard ---------------- */
+function renderDash(){
+  const r=C.rows, labels=r.map(x=>mlabel(x.month));
+  const p=document.getElementById("pane-dash");
+  p.innerHTML=`
+  <div class="grid3">
     <div class="card">
-      <h2 style="margin-top:0;font-size:1.1rem">저장된 월</h2>
-      <div style="overflow-x:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>월</th>
-              <th class="num">총매출</th>
-              <th class="num">순매출(85%)</th>
-              <th class="num">비용</th>
-              <th class="num">기말잔고</th>
-              <th class="num">신규</th>
-              <th>메모</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
+      <h3>현금 잔고 추이</h3><p class="ch-sub">계획 vs 실제+전망 · 시작 자본 ${abbr(C.start)}</p>
+      <div id="ch-cash"></div>
+      <div class="legend"><span><i style="background:#5e92d8"></i>계획</span><span><i style="background:#f0823c"></i>실제+전망</span><span><i style="background:#e35d5b"></i>0원 라인</span></div>
+    </div>
+    <div class="card">
+      <h3>자동 분석</h3><p class="ch-sub">기준월 ${C.curIdx<0?"미입력":r[C.curIdx].month}</p>
+      <div class="insight" id="insight"></div>
     </div>
   </div>
+  <div class="grid2">
+    <div class="card"><h3>월별 총매출</h3><p class="ch-sub">계획 vs 실제 (입력된 달만 실제 표시)</p>
+      <div id="ch-rev"></div>
+      <div class="legend"><span><i style="background:#5e92d8"></i>계획</span><span><i style="background:#f0823c"></i>실제</span></div></div>
+    <div class="card"><h3>비용 구성</h3><p class="ch-sub" id="exp-sub"></p>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div id="ch-exp" style="flex:none"></div><div id="exp-leg" style="flex:1;min-width:140px"></div></div></div>
+  </div>
+  <div class="card"><h3>채널별 누적 매출</h3><p class="ch-sub">2026-06 ~ 2026-12 · 계획 vs 실제 (총매출, Apple 수수료 전)</p>
+    <div id="ch-chan"></div>
+    <div class="legend"><span><i style="background:#5e92d8"></i>계획</span><span><i style="background:#f0823c"></i>실제</span></div></div>`;
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // ═══════════════════════════════════════════════════════════
-    // 5단계: Supabase Dashboard → Settings → API 에서 복사 후 붙여넣기
-    // ═══════════════════════════════════════════════════════════
-    const SUPABASE_URL = 'YOUR_PROJECT_URL';      // https://fvqjwnrhcjmmtwikkyzy.supabase.co/rest/v1/
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';    // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2cWp3bnJoY2ptbXR3aWtreXp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0Mjg5MDksImV4cCI6MjA5NzAwNDkwOX0.s1Smf605ixshUb-Exixr0ger6Jfq909K5vURy641OZ0
-    const APPLE_NET_RATE = 0.85;
+  document.getElementById("ch-cash").appendChild(chartLine(
+    [{pts:r.map(x=>x.planClosing),color:"#5e92d8",width:2,dash:"5 4"},
+     {pts:r.map(x=>x.mixClosing),color:"#f0823c",width:2.4,fill:true}],
+    labels,{markIdx:C.curIdx<0?null:C.curIdx,h:240}));
+  document.getElementById("ch-rev").appendChild(chartGroupBars(labels,
+    [{vals:r.map(x=>x.planGross),color:"#5e92d8"},
+     {vals:r.map(x=>x.has?x.aGross:null),color:"#f0823c"}],{h:220}));
 
-    const isConfigured =
-      SUPABASE_URL.startsWith('https://') &&
-      !SUPABASE_URL.includes('YOUR_PROJECT') &&
-      SUPABASE_ANON_KEY.length > 20 &&
-      !SUPABASE_ANON_KEY.includes('YOUR_ANON');
+  // expense composition for current (or last) month
+  const idx=C.curIdx<0?5:C.curIdx; const m=S.months[idx];
+  const src=actHas(m)?m.actual:m.lines;
+  const colors=["#f0823c","#e7b54e","#5e92d8","#48c08a","#b06fd0","#5fb6c4","#d98a8a","#8089a3","#c9652a"];
+  const segs=EXP.map((e,i)=>({label:e[1],val:pnum(src[e[0]])||0,color:colors[i%colors.length]})).filter(s=>s.val>0);
+  document.getElementById("exp-sub").textContent=`${m.month} · ${actHas(m)?"실제":"계획"} 기준`;
+  document.getElementById("ch-exp").appendChild(chartDonut(segs));
+  const leg=document.getElementById("exp-leg"); const tot=segs.reduce((s,x)=>s+x.val,0)||1;
+  leg.innerHTML=segs.sort((a,b)=>b.val-a.val).map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;padding:2px 0">
+    <i style="width:10px;height:10px;border-radius:3px;background:${s.color};flex:none"></i>
+    <span style="flex:1;color:var(--ink2)">${s.label}</span>
+    <span class="num mut">${abbr(s.val)}</span><span class="num" style="color:var(--mut2);width:34px;text-align:right">${Math.round(s.val/tot*100)}%</span></div>`).join("");
 
-    if (!isConfigured) {
-      document.getElementById('configWarn').classList.remove('hidden');
-    }
+  // channel cumulative
+  const chans=[...new Set(S.channels.map(c=>c.channel))];
+  const crows=chans.map(ch=>{
+    const list=S.channels.filter(c=>c.channel===ch);
+    const planSum=list.reduce((s,c)=>s+(c.plan.revenue||0),0);
+    const actSum=list.reduce((s,c)=>s+(pnum(c.actual.revenue)||0),0);
+    const anyAct=list.some(c=>pnum(c.actual.revenue)!==null);
+    return {label:CH_LABEL[ch]||ch,vals:[{val:planSum,color:"#5e92d8"},{val:anyAct?actSum:0,color:"#f0823c"}],tot:planSum};
+  }).sort((a,b)=>b.tot-a.tot);
+  document.getElementById("ch-chan").appendChild(chartHBars(crows,{rh:30}));
 
-    const supabase = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
+  renderInsight();
+}
+function renderInsight(){
+  const r=C.rows, cur=C.curIdx, box=document.getElementById("insight"); if(!box) return;
+  const out=[];
+  if(cur<0){
+    out.push(["📋","아직 <b>실제값 입력 전</b>입니다. <b>월별 현금흐름</b> 탭에서 매출·비용을 입력하면 런웨이와 손익분기가 실제 기준으로 갱신됩니다. 빈 칸의 회색 숫자는 계획값입니다."]);
+    out.push(["💰",`시작 자본 <b>${abbr(C.start)}</b> · 계획상 11월 출시까지 약 <b>${abbr(C.start - r[5].mixClosing)}</b> 소진 예정.`]);
+  }else{
+    const cr=r[cur], dCash=cr.mixClosing-cr.planClosing, dGross=cr.aGross-cr.planGross;
+    out.push(["📍",`기준월 <b>${cr.month}</b> · 잔고 <b>${abbr(cr.mixClosing)}</b> (계획 대비 <b class="${dCash>=0?'pos':'neg'}">${dCash>=0?'+':''}${abbr(dCash)}</b>).`]);
+    out.push([C.runwaySafe?"🟢":(C.runwayMonths<=(A("runway_critical_months")||2)?"🔴":"🟠"),
+      C.runwaySafe?`현재 추세로는 데이터 기간 내 <b>현금 고갈이 없습니다</b>. 최저 예상 잔고 <b>${abbr(C.lowest)}</b> (${C.lowMonth}).`
+      :`런웨이 <b>${C.runwayMonths}개월</b> — 예상 고갈 <b>${r[cur+C.runwayMonths]?r[cur+C.runwayMonths].month:'—'}</b>. 최저 잔고 ${abbr(C.lowest)}.`]);
+    const bep=A("bep_gross_mrr"); const pct=bep>0?Math.round(cr.aGross/bep*100):0;
+    out.push([pct>=100?"✅":"📈",`이번 달 총매출 <b>${abbr(cr.aGross)}</b> = 손익분기(${abbr(bep)})의 <b>${pct}%</b> ${pct>=100?'— 달성':'— 미달'}. 매출 ${dGross>=0?'계획 초과':'계획 미달'} <b class="${dGross>=0?'pos':'neg'}">${dGross>=0?'+':''}${abbr(dGross)}</b>.`]);
+  }
+  // best channel (actual if any else plan)
+  const chans=[...new Set(S.channels.map(c=>c.channel))];
+  let best=null;
+  chans.forEach(ch=>{const list=S.channels.filter(c=>c.channel===ch);
+    const anyAct=list.some(c=>pnum(c.actual.revenue)!==null);
+    const sum=list.reduce((s,c)=>s+(anyAct?(pnum(c.actual.revenue)||0):(c.plan.revenue||0)),0);
+    if(!best||sum>best.sum) best={ch,sum,anyAct};});
+  if(best&&best.sum>0) out.push(["🏆",`최대 매출 채널: <b>${CH_LABEL[best.ch]||best.ch}</b> (${best.anyAct?'실제':'계획'} 누적 <b>${abbr(best.sum)}</b>).`]);
+  box.innerHTML=out.map(o=>`<div class="row"><span class="ic">${o[0]}</span><span>${o[1]}</span></div>`).join("");
+}
 
-    const $ = (id) => document.getElementById(id);
-    const fmt = (n) => (Number(n) || 0).toLocaleString('ko-KR');
+/* ---------------- Cashflow tab ---------------- */
+function renderCash(){
+  const p=document.getElementById("pane-cash");
+  p.innerHTML=`<div class="toolbar">
+      <div class="hint" style="margin:0;flex:1;min-width:260px">빈 칸의 <b>회색 숫자</b>는 계획값입니다. 실제 금액을 입력하면 그 달부터 잔고·런웨이가 실제 기준으로 다시 계산됩니다. <b>계획 복사</b>로 한 줄을 채워 시작할 수 있어요.</div>
+    </div>
+    <div class="scrollx"><table class="grid" id="cashTable"></table></div>`;
+  const t=document.getElementById("cashTable");
+  // header
+  const head=document.createElement("thead");
+  let h1=`<th class="mth lft">월</th>`;
+  REV.forEach(x=>h1+=`<th class="grp-rev${x[0]==="pro_m"?" sep":""}">${x[1]}</th>`);
+  EXP.forEach((x,i)=>h1+=`<th class="grp-exp${i===0?" sep":""}">${x[1]}</th>`);
+  h1+=`<th class="sep">투자유입</th><th>활성유료</th>`;
+  h1+=`<th class="sep">총매출</th><th>순매출</th><th>총비용</th><th>순현금</th><th>잔고</th><th></th>`;
+  head.innerHTML="<tr>"+h1+"</tr>"; t.appendChild(head);
+  const body=document.createElement("tbody"); t.appendChild(body);
+  S.months.forEach((m,i)=>{
+    const tr=document.createElement("tr"); tr.dataset.i=i;
+    let html=`<td class="mth"><div>${m.month}</div><div class="mini"><span class="phase">${m.phase}</span> ${m.event||""}</div></td>`;
+    REV.forEach((x,k)=>{ html+=`<td class="${k===0?'sep':''}"><input class="cell" data-i="${i}" data-f="${x[0]}" inputmode="numeric" value="${m.actual[x[0]]??''}" placeholder="${fmtP(m.lines[x[0]])}"></td>`; });
+    EXP.forEach((x,k)=>{ html+=`<td class="${k===0?'sep':''}"><input class="cell exp" data-i="${i}" data-f="${x[0]}" inputmode="numeric" value="${m.actual[x[0]]??''}" placeholder="${fmtP(m.lines[x[0]])}"></td>`; });
+    html+=`<td class="sep"><input class="cell" data-i="${i}" data-f="injection" inputmode="numeric" value="${m.actual.injection??''}" placeholder="${fmtP(m.lines.injection)}"></td>`;
+    html+=`<td><input class="cell" data-i="${i}" data-f="active_paid" inputmode="numeric" value="${m.actual.active_paid??''}" placeholder="${fmtP(m.plan.active_paid)}" style="width:64px"></td>`;
+    html+=`<td class="calc sep" id="c-${i}-g"></td><td class="calc" id="c-${i}-n"></td><td class="calc" id="c-${i}-e"></td><td class="calc" id="c-${i}-cf"></td><td class="closing" id="c-${i}-cl"></td>`;
+    html+=`<td><button class="linkbtn" data-copy="${i}">계획 복사</button></td>`;
+    tr.innerHTML=html; body.appendChild(tr);
+  });
+  // totals row
+  const tr=document.createElement("tr"); tr.className="tot";
+  let th=`<td class="mth">합계</td>`;
+  REV.forEach((x,k)=>th+=`<td class="${k===0?'sep':''}" id="tot-${x[0]}"></td>`);
+  EXP.forEach((x,k)=>th+=`<td class="${k===0?'sep':''}" id="tot-${x[0]}"></td>`);
+  th+=`<td class="sep" id="tot-injection"></td><td></td>`;
+  th+=`<td class="sep" id="tot-g"></td><td id="tot-n"></td><td id="tot-e"></td><td id="tot-cf"></td><td></td><td></td>`;
+  tr.innerHTML=th; body.appendChild(tr);
 
-    function setStatus(el, msg, type) {
-      el.textContent = msg;
-      el.className = type || '';
-    }
+  // listeners
+  t.querySelectorAll("input.cell").forEach(inp=>{
+    inp.addEventListener("input",e=>{ const i=+e.target.dataset.i,f=e.target.dataset.f;
+      const v=e.target.value.trim(); S.months[i].actual[f]=(v===""?undefined:v); if(v==="")delete S.months[i].actual[f];
+      recompute(); markDirty(); });
+  });
+  t.querySelectorAll("button[data-copy]").forEach(b=>{
+    b.addEventListener("click",e=>{ const i=+e.target.dataset.copy, m=S.months[i];
+      [...REVK,...EXPK,"injection"].forEach(k=>{ m.actual[k]=String(m.lines[k]); });
+      m.actual.active_paid=String(m.plan.active_paid);
+      renderCash(); recompute(); markDirty(); showToast(`${m.month} 계획값을 실제 칸에 채웠습니다`); });
+  });
+  updateCashComputed();
+}
+function updateCashComputed(){
+  const tot={}; [...REVK,...EXPK,"injection"].forEach(k=>tot[k]=0);
+  let tg=0,tn=0,te=0,tcf=0;
+  C.rows.forEach(r=>{
+    const set=(id,txt,cls)=>{const el=document.getElementById(id); if(el){el.textContent=txt; if(cls){el.className=el.className.replace(/\b(pos|neg)\b/g,"")+" "+cls;}}};
+    set(`c-${r.i}-g`,abbr(r.aGross)); set(`c-${r.i}-n`,abbr(r.aNet)); set(`c-${r.i}-e`,abbr(r.aExp));
+    set(`c-${r.i}-cf`,(r.aNcf>=0?"+":"")+abbr(r.aNcf), r.aNcf>=0?"pos":"neg");
+    set(`c-${r.i}-cl`,abbr(r.mixClosing), r.mixClosing<0?"neg":"");
+    const m=S.months[r.i];
+    [...REVK,...EXPK,"injection"].forEach(k=>tot[k]+=(pnum(m.actual[k])|| (r.has?0:m.lines[k]) ||0));
+    tg+=r.aGross; tn+=r.aNet; te+=r.aExp; tcf+=r.aNcf;
+  });
+  [...REVK,...EXPK,"injection"].forEach(k=>{const el=document.getElementById("tot-"+k); if(el)el.textContent=abbr(tot[k]);});
+  const s=(id,v,c)=>{const el=document.getElementById(id);if(el){el.textContent=(c&&v>=0?"+":"")+abbr(v);if(c)el.className=v>=0?"pos":"neg";}};
+  s("tot-g",tg);s("tot-n",tn);s("tot-e",te);s("tot-cf",tcf,true);
+}
 
-    async function refreshSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        $('authSection').classList.add('hidden');
-        $('appSection').classList.remove('hidden');
-        $('userEmail').textContent = session.user.email;
-        await loadAll();
-      } else {
-        $('authSection').classList.remove('hidden');
-        $('appSection').classList.add('hidden');
-      }
-    }
+/* ---------------- Channel tab ---------------- */
+function renderChan(){
+  const p=document.getElementById("pane-chan");
+  const months=[...new Set(S.channels.map(c=>c.month))];
+  const chans=[...new Set(S.channels.map(c=>c.channel))];
+  const mk=ui.chanMetric;
+  const metricLab={revenue:"매출(₩)",downloads:"다운로드",paid_new:"신규 유료"};
+  p.innerHTML=`<div class="toolbar">
+      <div class="seg" id="metricSeg">
+        ${["revenue","downloads","paid_new"].map(k=>`<button data-m="${k}" class="${mk===k?'on':''}">${metricLab[k]}</button>`).join("")}
+      </div>
+      <div class="hint" style="margin:0;flex:1;min-width:240px">행=월, 열=채널. 회색 숫자는 계획값. 실제값을 입력하면 대시보드의 채널 차트가 갱신됩니다.</div>
+    </div>
+    <div class="scrollx"><table class="grid" id="chanTable"></table></div>
+    <div class="card" style="margin-top:13px"><h3>채널 누적 비교</h3><p class="ch-sub">${metricLab[mk]} · 계획 vs 실제</p><div id="ch-chanbar"></div>
+      <div class="legend"><span><i style="background:#5e92d8"></i>계획</span><span><i style="background:#f0823c"></i>실제</span></div></div>`;
+  const t=document.getElementById("chanTable");
+  const head=document.createElement("thead");
+  head.innerHTML="<tr><th class='mth lft'>월</th>"+chans.map(c=>`<th>${CH_LABEL[c]||c}</th>`).join("")+"<th class='sep'>월 합계</th></tr>";
+  t.appendChild(head);
+  const body=document.createElement("tbody"); t.appendChild(body);
+  const fmtCell=v=> mk==="revenue"?fmtP(v):fmtP(v);
+  months.forEach(mo=>{
+    const tr=document.createElement("tr");
+    let html=`<td class="mth">${mo}</td>`;
+    chans.forEach(c=>{ const row=S.channels.find(x=>x.month===mo&&x.channel===c);
+      html+=`<td><input class="cell" data-m="${mo}" data-c="${c}" inputmode="numeric" value="${row.actual[mk]??''}" placeholder="${fmtP(row.plan[mk])}" style="width:${mk==='revenue'?92:62}px"></td>`; });
+    html+=`<td class="calc sep" id="rt-${mo}"></td>`;
+    tr.innerHTML=html; body.appendChild(tr);
+  });
+  const tr=document.createElement("tr"); tr.className="tot";
+  tr.innerHTML="<td class='mth'>합계</td>"+chans.map(c=>`<td id="ct-${c}"></td>`).join("")+"<td class='sep' id='ct-all'></td>";
+  body.appendChild(tr);
 
-    $('btnLogin').onclick = async () => {
-      if (!isConfigured) return setStatus($('status'), 'Supabase URL/Key 설정 필요', 'err');
-      setStatus($('status'), '로그인 중…');
-      const { error } = await supabase.auth.signInWithPassword({
-        email: $('email').value.trim(),
-        password: $('password').value
-      });
-      if (error) return setStatus($('status'), error.message, 'err');
-      setStatus($('status'), '로그인 성공', 'ok');
-      await refreshSession();
-    };
+  t.querySelectorAll("input.cell").forEach(inp=>inp.addEventListener("input",e=>{
+    const mo=e.target.dataset.m,c=e.target.dataset.c,v=e.target.value.trim();
+    const row=S.channels.find(x=>x.month===mo&&x.channel===c);
+    if(v==="")delete row.actual[mk]; else row.actual[mk]=v;
+    updateChanComputed(); markDirty();
+  }));
+  document.getElementById("metricSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",e=>{
+    ui.chanMetric=e.target.dataset.m; markDirty(); renderChan();
+  }));
+  updateChanComputed();
+}
+function updateChanComputed(){
+  const months=[...new Set(S.channels.map(c=>c.month))];
+  const chans=[...new Set(S.channels.map(c=>c.channel))];
+  const mk=ui.chanMetric, isRev=mk==="revenue";
+  const ctot={}, fmtv=v=>isRev?abbr(v):fmtP(v);
+  chans.forEach(c=>ctot[c]=0); let all=0;
+  months.forEach(mo=>{ let rt=0;
+    chans.forEach(c=>{const row=S.channels.find(x=>x.month===mo&&x.channel===c);
+      const v=(pnum(row.actual[mk])!==null)?pnum(row.actual[mk]):row.plan[mk]; rt+=v; ctot[c]+=v;});
+    const el=document.getElementById("rt-"+mo); if(el)el.textContent=fmtv(rt); all+=rt; });
+  chans.forEach(c=>{const el=document.getElementById("ct-"+c); if(el)el.textContent=fmtv(ctot[c]);});
+  const ea=document.getElementById("ct-all"); if(ea)ea.textContent=fmtv(all);
+  // bar
+  const cont=document.getElementById("ch-chanbar"); if(cont){ cont.innerHTML="";
+    const rows=chans.map(c=>{const list=S.channels.filter(x=>x.channel===c);
+      const ps=list.reduce((s,x)=>s+(x.plan[mk]||0),0);
+      const anyAct=list.some(x=>pnum(x.actual[mk])!==null);
+      const as=list.reduce((s,x)=>s+(pnum(x.actual[mk])||0),0);
+      return {label:CH_LABEL[c]||c,tot:ps,vals:[{val:ps,color:"#5e92d8"},{val:anyAct?as:0,color:"#f0823c"}]};
+    }).sort((a,b)=>b.tot-a.tot);
+    cont.appendChild(chartHBars(rows,{rh:30}));
+  }
+}
 
-    $('btnSignup').onclick = async () => {
-      if (!isConfigured) return setStatus($('status'), 'Supabase URL/Key 설정 필요', 'err');
-      setStatus($('status'), '가입 중…');
-      const { data, error } = await supabase.auth.signUp({
-        email: $('email').value.trim(),
-        password: $('password').value
-      });
-      if (error) return setStatus($('status'), error.message, 'err');
-      if (data.session) {
-        setStatus($('status'), '가입 완료', 'ok');
-        await refreshSession();
-      } else {
-        setStatus($('status'), '이메일 확인 링크를 보냈습니다. (또는 Dashboard에서 Confirm email OFF)', 'ok');
-      }
-    };
+/* ---------------- Assumptions tab ---------------- */
+const CAT_LAB={capital:"자본",pricing:"가격",fees:"수수료",tax:"세금",fixed:"고정비",target:"목표",churn:"이탈률",scenario:"시나리오"};
+const LIVE=new Set(["starting_cash","apple_net_rate","bep_gross_mrr","runway_warning_months","runway_critical_months"]);
+function renderAssum(){
+  const p=document.getElementById("pane-assum");
+  const cats={}; for(const k in S.assumptions){const a=S.assumptions[k];(cats[a.category]=cats[a.category]||[]).push(k);}
+  let html=`<div class="hint">값을 바꾸면 즉시 재계산됩니다. <span class="tag">엔진 반영</span> 표시는 런웨이·손익분기 계산에 직접 쓰이는 값입니다. 나머지는 참고/메모용입니다.</div><div class="asgrid">`;
+  Object.keys(cats).forEach(cat=>{
+    html+=`<div class="ascat"><h4>${CAT_LAB[cat]||cat}</h4>`;
+    cats[cat].forEach(k=>{const a=S.assumptions[k];
+      html+=`<div class="asrow"><div class="k">${k}${LIVE.has(k)?'<span class="tag">엔진 반영</span>':''}<span class="n">${a.notes||""}</span></div>
+        <input data-k="${k}" value="${a.value}" ${a.editable?'':'disabled'}><span class="u">${a.unit||""}</span></div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div>`; p.innerHTML=html;
+  p.querySelectorAll("input[data-k]").forEach(inp=>inp.addEventListener("input",e=>{
+    S.assumptions[e.target.dataset.k].value=e.target.value; recompute(); markDirty();
+  }));
+}
 
-    $('btnLogout').onclick = async () => {
-      await supabase.auth.signOut();
-      await refreshSession();
-    };
+/* ---------------- orchestration ---------------- */
+function recompute(){ compute(); renderKPI();
+  if(ui.tab==="dash") renderDash();
+  else if(ui.tab==="cash") updateCashComputed();
+  else if(ui.tab==="chan") updateChanComputed();
+}
+function switchTab(t){ ui.tab=t; markDirty();
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+  document.querySelectorAll(".panewrap>section").forEach(s=>s.classList.remove("on"));
+  document.getElementById("pane-"+t).classList.add("on");
+  if(t==="dash") renderDash(); else if(t==="cash") renderCash(); else if(t==="chan") renderChan(); else renderAssum();
+}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
 
-    async function loadAll() {
-      const { data, error } = await supabase
-        .from('monthly_cashflow')
-        .select('*')
-        .order('month', { ascending: false });
+/* export / import */
+function dl(name,content,type){const b=new Blob([content],{type:type||"text/plain;charset=utf-8"});
+  const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+function exportJson(){const out={assumptions:{},months:S.months.map(m=>m.actual),channels:S.channels.map(c=>c.actual),ui,exported:new Date().toISOString()};
+  for(const k in S.assumptions)out.assumptions[k]=S.assumptions[k].value;
+  dl("fluxketch_finance_state.json",JSON.stringify(out,null,2),"application/json");showToast("JSON 파일을 저장했습니다");}
+function exportCsv(){
+  let a="month,phase,event,rev_pro_m,rev_pro_y,rev_student,rev_noteplus,rev_other,exp_living,exp_tools,exp_marketing,exp_labor,exp_legal,exp_cloud,exp_travel,exp_other,exp_tax_reserve,owner_injection,active_paid,gross,net,exp_total,net_cf,closing,is_actual\n";
+  C.rows.forEach(r=>{const m=S.months[r.i];const g=k=>(pnum(m.actual[k])!=null?pnum(m.actual[k]):"");
+    a+=[m.month,m.phase,(m.event||"").replace(/,/g," "),g("pro_m"),g("pro_y"),g("student"),g("noteplus"),g("other"),
+      g("living"),g("tools"),g("marketing"),g("labor"),g("legal"),g("cloud"),g("travel"),g("other_exp"),g("tax_reserve"),
+      g("injection"),g("active_paid"),Math.round(r.aGross),Math.round(r.aNet),Math.round(r.aExp),Math.round(r.aNcf),Math.round(r.mixClosing),r.has?"Y":"N"].join(",")+"\n";});
+  let c="month,channel,downloads_actual,paid_new_actual,revenue_actual\n";
+  S.channels.forEach(x=>{const g=k=>(pnum(x.actual[k])!=null?pnum(x.actual[k]):"");
+    c+=[x.month,x.channel,g("downloads"),g("paid_new"),g("revenue")].join(",")+"\n";});
+  dl("fluxketch_cashflow_actual.csv","\ufeff"+a,"text/csv;charset=utf-8");
+  setTimeout(()=>dl("fluxketch_channels_actual.csv","\ufeff"+c,"text/csv;charset=utf-8"),250);
+  showToast("CSV 2개(현금흐름·채널)를 내보냈습니다");
+}
+function importJson(file){const fr=new FileReader();fr.onload=()=>{try{const sv=JSON.parse(fr.result);
+  S=freshState();
+  if(sv.assumptions)for(const k in sv.assumptions){if(S.assumptions[k])S.assumptions[k].value=sv.assumptions[k];}
+  if(sv.months)sv.months.forEach((x,i)=>{if(S.months[i])S.months[i].actual=x||{};});
+  if(sv.channels)sv.channels.forEach((x,i)=>{if(S.channels[i])S.channels[i].actual=x||{};});
+  if(sv.ui)Object.assign(ui,sv.ui);
+  save();recompute();switchTab(ui.tab||"dash");showToast("불러왔습니다");
+}catch(e){showToast("JSON을 읽지 못했습니다");}};fr.readAsText(file);}
 
-      if (error) {
-        setStatus($('saveStatus'), error.message, 'err');
-        return;
-      }
-
-      const tbody = $('tableBody');
-      tbody.innerHTML = '';
-      for (const row of data || []) {
-        const tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        tr.innerHTML = `
-          <td>${row.month}</td>
-          <td class="num">${fmt(row.rev_gross_actual)}</td>
-          <td class="num">${fmt(row.rev_net_actual)}</td>
-          <td class="num">${fmt(row.exp_total_actual)}</td>
-          <td class="num">${fmt(row.closing_actual)}</td>
-          <td class="num">${row.new_paid_actual}</td>
-          <td>${(row.notes || '').slice(0, 40)}</td>
-        `;
-        tr.onclick = () => fillForm(row);
-        tbody.appendChild(tr);
-      }
-
-      if (data?.length) {
-        const latest = data[0];
-        $('runwayHint').textContent =
-          `최근 ${latest.month} · 잔고 ₩${fmt(latest.closing_actual)}`;
-      }
-    }
-
-    function fillForm(row) {
-      $('month').value = row.month;
-      $('revGross').value = row.rev_gross_actual;
-      $('expTotal').value = row.exp_total_actual;
-      $('injection').value = row.owner_injection_actual || 0;
-      $('closing').value = row.closing_actual;
-      $('newPaid').value = row.new_paid_actual;
-      $('activePaid').value = row.active_paid_actual;
-      $('notes').value = row.notes || '';
-    }
-
-    $('btnSave').onclick = async () => {
-      const monthVal = $('month').value;
-      if (!monthVal) return setStatus($('saveStatus'), '월을 선택하세요', 'err');
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return setStatus($('saveStatus'), '로그인 필요', 'err');
-
-      const revGross = Number($('revGross').value) || 0;
-      const revNet = Math.round(revGross * APPLE_NET_RATE);
-      const expTotal = Number($('expTotal').value) || 0;
-      const injection = Number($('injection').value) || 0;
-      const netCf = revNet - expTotal + injection;
-
-      const payload = {
-        user_id: user.id,
-        month: monthVal,
-        rev_gross_actual: revGross,
-        rev_net_actual: revNet,
-        exp_total_actual: expTotal,
-        owner_injection_actual: injection,
-        net_cf_actual: netCf,
-        closing_actual: Number($('closing').value) || 0,
-        new_paid_actual: Number($('newPaid').value) || 0,
-        active_paid_actual: Number($('activePaid').value) || 0,
-        mrr_gross_actual: revGross,
-        notes: $('notes').value.trim() || null
-      };
-
-      setStatus($('saveStatus'), '저장 중…');
-      const { error } = await supabase
-        .from('monthly_cashflow')
-        .upsert(payload, { onConflict: 'user_id,month' });
-
-      if (error) return setStatus($('saveStatus'), error.message, 'err');
-      setStatus($('saveStatus'), `${monthVal} 저장됨 · Supabase sync 완료`, 'ok');
-      await loadAll();
-    };
-
-    $('btnDelete').onclick = async () => {
-      const monthVal = $('month').value;
-      if (!monthVal || !confirm(`${monthVal} 삭제?`)) return;
-      const { error } = await supabase
-        .from('monthly_cashflow')
-        .delete()
-        .eq('month', monthVal);
-      if (error) return setStatus($('saveStatus'), error.message, 'err');
-      setStatus($('saveStatus'), '삭제됨', 'ok');
-      await loadAll();
-    };
-
-    supabase.auth.onAuthStateChange(() => refreshSession());
-    refreshSession();
-
-    const now = new Date();
-    $('month').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  </script>
+/* init */
+load(); compute();
+initCloud();
+document.getElementById("tabs").addEventListener("click",e=>{if(e.target.dataset.t)switchTab(e.target.dataset.t);});
+document.getElementById("btnExportJson").onclick=exportJson;
+document.getElementById("btnExportCsv").onclick=exportCsv;
+document.getElementById("btnImportJson").onclick=()=>document.getElementById("fileJson").click();
+document.getElementById("fileJson").onchange=e=>{if(e.target.files[0])importJson(e.target.files[0]);};
+document.getElementById("btnReset").onclick=()=>{ if(confirm("입력한 모든 실제값과 가정 변경을 지우고 계획 상태로 되돌립니다. 계속할까요?")){
+  S=freshState(); save(); recompute(); switchTab(ui.tab); showToast("계획 상태로 초기화했습니다"); }};
+renderKPI(); switchTab(ui.tab||"dash");
+</script>
 </body>
 </html>
